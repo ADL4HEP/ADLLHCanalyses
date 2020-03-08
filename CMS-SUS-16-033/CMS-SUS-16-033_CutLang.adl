@@ -1,0 +1,138 @@
+#info analysis
+#  title "Search for supersymmetry in multijet events with missing transverse momentum in 
+# proton-proton collisions at 13 TeV"
+#  experiment CMS
+#  id SUS-16-033
+#  publication Phys. Rev. D 96, 032003 (2017)
+#  sqrtS 13.0
+#  lumi 35.9
+#  arXiv 1704.07781  
+#  hepdata 
+#  doi 10.1103/PhysRevD.96.032003
+
+object jets 
+  take Jet
+  select pT(Jet) > 30  
+  select abs(Eta(Jet)) < 2.4
+
+object jetsmht 
+  take Jet
+  select pT(Jet) > 30  
+  select abs(Eta(Jet)) < 5
+
+object bjets
+  take jets
+  select BTag(jets) == 1
+
+object muons
+  take Muon
+  select pT(Muon) > 10
+  select abs(eta(Muon)) < 2.4
+  select D0(Muon) < 2
+
+object electrons
+  take Ele
+  select pT(Electron) > 10
+  select abs(eta(Electron)) < 2.5
+  select D0(Electron) < 2
+  
+define MHLV = -jetsmht_
+define MHT = pT( MHLV )
+
+# preselection region
+region presel
+  select size(jets) >= 2
+  select size(jetsmht) >= 0
+  select HT(jets) > 300
+  select MHT > 50
+  select size(muons) == 0
+  select size(electrons) == 0
+  select dphi(jets[0], MHLV) > 0.5
+  select dphi(jets[1], MHLV) > 0.5  
+  select size(jets) >= 3 ? dphi(jets[2], MHLV) > 0.3 : ALL
+  select size(jets) >= 4 ? dphi(jets[3], MHLV) > 0.3 : ALL
+
+# Aggregate search regions as shown in Table 3 of the paper:
+region SR1
+  presel
+  select size(jets) >= 2
+  select size(bjets) == 0
+  select HT >= 500
+  select MHT >= 500
+
+region SR2
+  presel
+  select size(jets) >= 3
+  select size(bjets) == 0
+  select HT >= 1500
+  select MHT >= 750
+
+region SR3
+  presel
+  select size(jets) >= 5
+  select size(bjets) == 0
+  select HT >= 500
+  select MHT >= 500
+
+region SR4
+  presel
+  select size(jets) >= 5
+  select size(bjets) == 0
+  select HT >= 1500
+  select MHT >= 750
+
+region SR5
+  presel
+  select size(jets) >= 9
+  select size(bjets) == 0
+  select HT >= 1500
+  select MHT >= 750
+
+region SR6
+  presel
+  select size(jets) >= 2
+  select size(bjets) >= 2
+  select HT >= 500
+  select MHT >= 500
+
+region SR7
+  presel
+  select size(jets) >= 3
+  select size(bjets) >= 1
+  select HT >= 750
+  select MHT >= 750
+
+region SR8
+  presel
+  select size(jets) >= 5
+  select size(bjets) >= 3
+  select HT >= 500
+  select MHT >= 500
+
+region SR9
+  presel
+  select size(jets) >= 5
+  select size(bjets) >= 2
+  select HT >= 1500
+  select MHT >= 750
+
+region SR10
+  presel
+  select size(jets) >= 9
+  select size(bjets) >= 3
+  select HT >= 750
+  select MHT >= 750
+
+region SR11
+  presel
+  select size(jets) >= 7
+  select size(bjets) >= 1
+  select HT >= 300
+  select MHT >= 300
+
+region SR12
+  presel
+  select size(jets) >= 5
+  select size(bjets) >= 1
+  select HT >= 750
+  select MHT >= 750
