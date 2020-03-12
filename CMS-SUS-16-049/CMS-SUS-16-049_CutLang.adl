@@ -59,9 +59,9 @@ object muons
   # relative isolation Irel < 0.10
 
 object electrons
-  take ELE
-  select pT(ELE) > 5
-  select abs(eta(ELE)) < 2.4
+  take Electron
+  select pT(Electron) > 5
+  select abs(eta(Electron)) < 2.4
   # relative isolation Irel < 0.21
 
 object leptons : Union(electrons , muons)
@@ -99,10 +99,10 @@ region highdm
   baseline
   select size(jets) >= 5
   select size(bjets) >= 1
-  select dphi(jets[0], METLV_0) > 0.5
-  select dphi(jets[1], METLV_0) > 0.5
-  select dphi(jets[2], METLV_0) > 0.5
-  select dphi(jets[3], METLV_0) > 0.5
+  select dphi(jets[0], METLV[0]) > 0.5
+  select dphi(jets[1], METLV[0]) > 0.5
+  select dphi(jets[2], METLV[0]) > 0.5
+  select dphi(jets[3], METLV[0]) > 0.5
   # the rest divided into SRs of MTbmin, Nt, NW, Nresolvedtop, Nb, MET  
   # baseline should suffice for the overlap study.
 
@@ -113,9 +113,9 @@ region lowdm
   select Size(bjets) >= 1 ?   MTb0 < 175 : ALL
   select Size(bjets) >  1 ? MTbmin < 175 : ALL
   select Size(jetsISR) > 0
-  select dPhi(jets[0], METLV_0) > 0.5
-  select dPhi(jets[1], METLV_0) > 0.15
-  select dPhi(jets[2], METLV_0) > 0.15
+  select dPhi(jets[0], METLV[0]) > 0.5
+  select dPhi(jets[1], METLV[0]) > 0.15
+  select dPhi(jets[2], METLV[0]) > 0.15
   select SMET > 10
   # the rest divided into SRs of Nj, Nb, NSV, pTISR, pTb, MET.
   # baseline should suffice for the overlap study

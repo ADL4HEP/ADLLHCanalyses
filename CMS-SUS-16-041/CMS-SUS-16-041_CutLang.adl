@@ -16,8 +16,8 @@ object muons
   take Muon
   select pT(Muon) > 10
   select abs(eta(Muon)) < 2.4
-  select D0(Muon) < 0.5
-  select dz(Muon) < 1
+  select abs(d0(Muon)) < 0.5
+  select abs(dz(Muon)) < 1
   # define Imini = relative isolation
   # define pTratio = pT / closestjet.pT
   # define pTrel = (abs((closestjet.p - p) x p)) / abs(closestjet.p - p)
@@ -27,8 +27,8 @@ object electrons
   take Electron
   select pT(Electron) > 10
   select abs(eta(Electron)) < 2.5
-  select D0(Electron) < 0.5
-  select dz(Electron) < 1
+  select abs(d0(Electron)) < 0.5
+  select abs(dz(Electron)) < 1
   # define Imini = relative isolation
   # define pTratio = pT / closestjet.pT
   # define pTrel = (abs((closestjet.p - p) x p)) / abs(closestjet.p - p)

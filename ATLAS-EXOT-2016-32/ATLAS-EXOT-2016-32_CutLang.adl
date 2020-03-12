@@ -1,0 +1,96 @@
+# arxiv:1704.03848, ATLAS monophoton
+
+#info analysis
+# Details about experiment
+#  experiment ATLAS
+#  id EXOT-2016-32
+#  publication Eur.Phys.J. C77 (2017) no.6, 393
+#  sqrtS 13.0
+#  lumi 36.1
+#  arXiv 1704.03848
+#  hepdata https://www.hepdata.net/record/ins1591328
+#  doi 10.1140/epjc/s10052-017-4965-8
+
+# OBJECT SELECTIONS
+
+object photons
+# Delphes photons
+  take Photon
+  select pT(Photon) > 10
+  select abs(Eta(Photon)) < 2.37
+
+object tightphotons
+  take photons
+  select (abs(Eta(photons)) < 1.37) or (abs(Eta(photons)) [] 1.52 2.37)
+
+object electrons
+  take Electron
+  select pT(Electron) > 7
+  select abs(Eta(Electron)) < 2.47
+
+object muons
+  take Muon
+  select pT(Muon) > 6
+  select abs(Eta(Muon)) < 2.7
+
+object jets
+  take Jet
+  select pT(Jet) > 20
+  select abs(Eta(Jet)) < 4.5
+
+object cleanjets
+  take jets
+  select dR(jets, electrons) > 0.2
+
+object cleanelectrons
+  take electrons
+  select dR(electrons, cleanjets) > 0.4
+
+object cleanmuons
+  take muons
+  select dR(muons, cleanjets) > 0.4
+
+object jetsSR
+  take cleanjets
+  select pT(cleanjets) > 30
+  select dR(cleanjets, photons) > 0.4
+  select dPhi(cleanjets, METLV[0]) > 0.4
+
+  
+# VARIABLES
+
+# scalar sum of pT of jets, electrons, photons, muons
+define SumET = sum(pT(tightphotons)) + sum(pT(jetsSR)) + sum(pT(cleanelectrons)) + sum(pT(cleanmuons))
+define METoverSqrtSumET = MET / sqrt(SumET)
+
+# EVENT SELECTION
+
+region preselection
+# Pre-selection cuts
+  select Size(tightphotons) > 0
+  select pT(tightphotons[0]) > 150
+  select Size(cleanmuons) == 0
+  select Size(cleanelectrons) == 0
+  select Size(jetsSR) <= 1
+  select METoverSqrtSumET > 8.5
+
+region SRI1
+  preselection
+  select MET > 150
+
+region SRI2
+  preselection
+  select MET > 225
+
+region SRI3
+  preselection
+  select MET > 300
+
+region SRE1
+  preselection
+  select MET > 150 and MET < 225
+
+region SRE2
+  preselection
+  select MET > 225 and MET < 300
+  

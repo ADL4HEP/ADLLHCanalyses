@@ -15,32 +15,41 @@ object muons
   take Muon
   select pT(Muon) > 25
   select abs(eta(Muon)) < 2.1
-  #select dxy < 2 ?
+  select abs(d0(Muon)) < 0.5
+  select abs(dz(Muon)) < 1
   # isolation, pTsum < 5, DR < 0.3
 
 object electrons
   take Electron
   select pT(Electron) > 30
   select abs(eta(Electron)) < 1.44
-  #select dxy < 2 ?
+  select abs(d0(Electron)) < 0.5
+  select abs(dz(Electron)) < 1
   # isolation, pTsum < 5, DR < 0.3
 
 object leptons : Union(electrons, muons)
 
-# We don't get relative isolation in Delphes
-object vetoelectrons
-  take Electron
-  select pT(Electron) [] 5 30
-  # pTsum / pT < 0.1 where where pTsum calculated from 
-  # DR = 0.2 for electron.pT =< 50
-  # DR = max(0.5, 10/electron.pT) for electron.pT > 50
-
+# We don't have relative isolation in Delphes, so we use the regular
+# isolation defined for the selection leptons
 object vetomuons
   take Muon
   select pT(Muon) [] 5 25
-  # pTsum / pT < 0.1 where pTsum is calculated from 
+  select abs(eta(Muon)) < 2.1
+  select abs(d0(Muon)) < 0.5
+  select abs(dz(Muon)) < 1
+  # pTsum / pT < 0.1 where pTsum is calculated from
   # DR = 0.2 for muon.pT =< 50
   # DR = max(0.5, 10/muon.pT) for muon.pT > 50
+
+object vetoelectrons
+  take Electron
+  select pT(Electron) [] 5 30
+  select abs(eta(Electron)) < 1.44
+  select abs(d0(Electron)) < 0.5
+  select abs(dz(Electron)) < 1
+  # pTsum / pT < 0.1 where where pTsum calculated from
+  # DR = 0.2 for electron.pT =< 50
+  # DR = max(0.5, 10/electron.pT) for electron.pT > 50
 
 object vetoleptons : Union( vetoelectrons, vetomuons)
 
@@ -48,18 +57,19 @@ object vetotaus
   take Jet
   select TauTag(Jet) == 1
   select pT(Jet) > 20
+  select abs(Eta(Jet)) < 2.4
 
 object jets
   take Jet 
   select pT(Jet) > 30  
   select abs(Eta(Jet)) < 2.4
-  select dR(Jet, leptons) < 0.4 
+  select dR(Jet, leptons) >  0.4
 
 object bjets
   take jets
   select BTag(jets) == 1
   
-# Can't do tracks in Delphes.  Not necessary for overlap study.
+# Not considering tracks due to simulation inaccuracy.
 #object vetotracks
 #  take Track t
 #  reject dR(t, leptons) < 0.2
@@ -67,7 +77,8 @@ object bjets
 #  select size(leptons) > 0 ? leptons[0].q + q == 0
   
 # VARIABLES
-define MTl = sqrt( 2*pT(leptons[0]) * MET*(1-cos(Phi(METLV_0) - Phi(leptons[0]) )))
+define MTl = sqrt( 2*pT(leptons[0]) * MET*(1-cos(Phi(METLV[0]) - Phi(leptons[0]) )))
+define Hbb = bjets[0] + bjets[1]
 define MCT = 2 * pT(bjets[0]) * pT(bjets[1]) * (1 + cos( dPhi( bjets[0], bjets[1] )))
 
 # EVENT SELECTION
@@ -76,7 +87,7 @@ region preselection
   select Size(electrons) + Size(muons) >= 0
   select Size(vetoelectrons) + Size(vetomuons) >= 0
   select Size(leptons) == 1
-  reject Size(vetoleptons) > 1
+  select Size(vetoleptons) == 0
   # select size(vetotracks) == 0
   select Size(vetotaus) == 0
   select Size(bjets) == 2
@@ -85,7 +96,7 @@ region preselection
 
 region signal
   preselection
-  select m(bjets[0] bjets[1]) [] 90 150
+  select m(Hbb) [] 90 150
   select MTl > 150
   select MCT > 170
   bin MET 125 200

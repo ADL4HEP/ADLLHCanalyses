@@ -14,15 +14,15 @@
 # OBJECTS
 object muons
   take Muon
-  select pT( Muon) > 25
-  select abs(eta( Muon)) < 2.1
-  select D0( Muon) < 2 
+  select pT(Muon) > 25
+  select abs(eta(Muon)) < 2.1
+  select abs(d0(Muon)) < 2 
 
 object electrons
-  take Ele
-  select pT( Ele) > 25
-  select abs(eta( Ele)) < 1.44
-  select D0( Ele) < 2 
+  take Electron
+  select pT(Electron) > 25
+  select abs(eta(Electron)) < 1.44
+  select abs(d0(Electron)) < 2 
 
 object leptons : Union( electrons , muons)
 

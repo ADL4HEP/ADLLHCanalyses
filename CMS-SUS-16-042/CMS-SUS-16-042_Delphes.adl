@@ -14,14 +14,14 @@ object muons
   take Muon
   select pT > 25
   select abs(eta) < 2.1
-  select d0 < 2 ?
+  select abs(d0) < 2 ?
   # relative isolation Irel < 0.2
 
 object electrons
   take Electron
   select pT > 25
   select abs(eta) < 1.44
-  select d0 < 2 ?
+  select abs(d0) < 2 ?
   # relative isolation Irel < 0.1
 
 object leptons

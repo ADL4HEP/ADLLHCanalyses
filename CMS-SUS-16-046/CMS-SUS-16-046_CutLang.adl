@@ -14,7 +14,7 @@ object jets
   take Jet 
   select pT(Jet) > 30  
   select abs(Eta(Jet)) < 3
-  select pT(Jet) > 100 ? dR(Jet, METLV_0) > 0.3 : ALL
+  select pT(Jet) > 100 ? dR(Jet, METLV[0]) > 0.3 : ALL
   # The following was written implicitly (as jet isolation).
   # There is an explicit requirement on photon isolation, so taking that one.
   # This might even be a relic from 046
@@ -28,17 +28,17 @@ object photons
   # isolation on dR = 0.3
 
 # Variables
-define MTpho = sqrt( 2*{photons[0]}pT * MET*(1-cos({METLV_0}Phi - {photons[0]}Phi )))
-define STpho = Sum(pT(photons)) + MET  # sum of pt of photons
+define MTpho = sqrt( 2*Pt(photons[0]) * MET*(1-cos(Phi(METLV[0]) - Phi(photons[0]) )))
+define STpho = Sum(Pt(photons)) + MET  # sum of pt of photons
 
 # signal regions
 region SRs
   select size(photons) >= 1
-  select {photons[0]}pT > 160 
+  select Pt(photons[0]) > 160
   # No explicit requirement on leptons or jets
   select MET > 300
   select MTpho > 300
   select STpho > 600
-  bin STpho 600 800 100 1300
+  bin STpho 600 800 1000 1300
 
 

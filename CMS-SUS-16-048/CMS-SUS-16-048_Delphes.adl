@@ -51,77 +51,71 @@ define Mtautau = fMtautau(leptons[0], leptons[1], MET)
 
 # EVENT SELECTION
 
-# Dimuon selection
-# This selection follows the cutflow table in LH recasting twiki
-# https://phystev.cnrs.fr/wiki/_detail/2019:groups:tools:cms-sus-16-048_cutflow.png?id=2019%3Agroups%3Atools%3Arecastcmp
-region CharginoDimuonPresel
-  weight xsec 0.688016
-  select size(muons) == 2
-  select muons[0].pT [] 5 30
-  select muons[0].charge * muons[1].charge == -1
-  select dimuon.pT > 3 
-  select dimuon.mass [] 4 50
-  select dimuon.mass ][ 9 10.5
-  select MET.MET [] 125 200
+# Dilepton preselection region
+region dileptonpresel
+  select size(leptons) == 2
+  select leptons[0].Pt [] 5 30
+  select leptons[1].Pt [] 5 30
+  select leptons[0].q * leptons[1].q == -1
+  select dilepton.Pt > 3
+  select dilepton.m [] 4 50
+  select dilepton.m ][ 9 10.5
+  select size(muons) == 2 ? Pt(METLV[0]) > 125 : Pt(METLV[0]) > 200
   weight trigger 0.65
-  select size(jets) >= 0
   select size(jets) >= 1
   select HT > 100
   select (MET.MET / HT) > 0.6 and (MET.MET / HT) < 1.4
   select size(bjets) == 0
-  select Mtautau ][ 0 160 
-  select MTl1 < 70 and MTl2 < 70
+  reject fMTauTau(leptons[0], leptons[1]) [] 0 160
+  select MTl1 < 70 AND MTl2 < 70
 
-# Additional selections from the analysis (not included in the recast study)
+# Signal bins for EWK gaugino search
+region ewkbins
+  dileptonpresel
+  select Size(electrons) == 2 or Size(muons) == 2
+  bin MET.MET [] 125 200 and dilepton.m [] 4 9
+  bin MET.MET [] 125 200 and dilepton.m [] 10.5 20
+  bin MET.MET [] 125 200 and dilepton.m [] 20 30
+  bin MET.MET [] 125 200 and dilepton.m [] 30 50
+  bin MET.MET [] 200 250 and dilepton.m [] 4 9
+  bin MET.MET [] 200 250 and dilepton.m [] 10.5 20
+  bin MET.MET [] 200 250 and dilepton.m [] 20 30
+  bin MET.MET [] 200 250 and dilepton.m [] 30 50
+  bin MET.MET > 250 and dilepton.m [] 4 9
+  bin MET.MET > 250 and dilepton.m [] 10.5 20
+  bin MET.MET > 250 and dilepton.m [] 20 30
+  bin MET.MET > 250 and dilepton.m [] 30 50
 
-# Dilepton preselection
-#region DileptonPresel
-  # This selection follows Table 1 in the paper 
-  # (for the time being, except for the isolation criteria)
-#  select size(leptons) == 2
-#  select size(electrons) == 2 or size(muons) == 2
-#  select leptons[0].charge * leptons[1].charge == -1
-#  select leptons[0].pT > 5
-#  select leptons[1].pT > 5
-#  select size(bjets) == 0
-#  select size(electrons) == 2 or size(muons) == 2 ? mass(dilepton) [] 4 9 : mass(dilepton) [] 10.5 50
-#  select dilepton.pT > 3
-#  select size(muons) == 2 ? MET.pT > 125 : MET.pT > 200
-#  select MET.pT / HT [] 0.6 1.4
-#  select HT > 100
-#  select MTl1 < 70 and MTl2 < 70
+# Signal bins for stop search
+region stopbins
+  dileptonpresel
+  select Size(electrons) == 1 and Size(muons) == 1
+  bin MET.MET [] 125 200 and leptons[0].Pt [] 5 12
+  bin MET.MET [] 125 200 and leptons[0].Pt [] 12 20
+  bin MET.MET [] 125 200 and leptons[0].Pt [] 20 30
+  bin MET.MET [] 200 300 and leptons[0].Pt [] 5 12
+  bin MET.MET [] 200 300 and leptons[0].Pt [] 12 20
+  bin MET.MET [] 200 300 and leptons[0].Pt [] 20 30
+  bin MET.MET > 300 and leptons[0].Pt [] 5 12
+  bin MET.MET > 300 and leptons[0].Pt [] 12 20
+  bin MET.MET > 300 and leptons[0].Pt [] 20 30
 
-# Dielectron selection
-#region CharginoDielectronPresel
-# This selection follows the cutflow table in the twiki
-#  select size(electrons) == 2
-#  select electrons[0].pT [] 5 30
-#  select electrons[0].charge * electrons[1].charge == -1
-#  select dielectron.pT > 3 
-#  select dielectron.mass [] 4 9 or dielectron.mass [] 10.5 50
-#  reject dielectron.mass [] 9 10.5
-#  select MET.pT [] 125 200
-#  select MET.pT / HT [] 0.6 1.4
-#  select size(jets) >= 1
-#  select HT > 100
-#  select size(bjets) == 0
-#  reject Mtautau [] 0 160 
-#  select MTl1 < 70 and MTl2 < 70
-
-# Stop dimuon preselection
-#region StopDimuonPresel
-#  # This selection follows the cutflow table in the twiki
-#  select size(muons) == 2
-#  select muons[0].pT [] 5 30
-#  select muons[0].charge * muons[1].charge == -1
-#  select dimuon.pT > 3 
-#  select dimuon.mass [] 4 50
-#  reject dimuon.mass [] 9 10.5
-#  select MET.pT [] 125 200
-#  select MET.pT / HT [] 0.6 1.4
-#  select size(jets) >= 1
-#  select HT > 100
-#  select size(bjets) == 0
-#  reject Mtautau [] 0 160
-
-
+# Dimuon preselection for validation wrt cutflows provided by CMS
+# http://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-16-048/index.html
+region dimuonpresel
+  select ALL
+  select size(muons) == 2
+  select muons[0].Pt [] 5 30
+  select muons[1].Pt [] 5 30
+  select muons[0].charge * muons[1].charge == -1
+  select dimuon.pT > 3
+  select dimuon.m [] 4 50
+  select dimuon.m ][ 9 10.5
+  select MET.MET [] 125 200
+  weight trigger 0.65
+  select size(jets) >= 1
+  select HT > 100
+  select (MET.MET / HT) > 0.6 and (MET.MET / HT) < 1.4
+  select size(bjets) == 0
+  reject fMTauTau(muons[0], muons[1]) [] 0 160
+  select MTl1 < 70 AND MTl2 < 70

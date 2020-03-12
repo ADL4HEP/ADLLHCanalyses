@@ -27,10 +27,12 @@ define HTpho = HT(jets) + pT(photons[0])
 # signal regions
 region SRs
   select ALL
-  select size(photons) == 1 
-  # Can write dphi with eta-phi:
-  select dphi(photons[0],   METLV_0 ) < 0.3 
-  select dphi(photons[0], - METLV_0 ) < 3.0
-  bin HTpho 700 2000
-  bin MET 350 450 600 
+  select size(photons) == 1
+  select dphi(photons[0], METLV[0] ) < 0.3 and dphi(photons[0], -METLV[0] ) < 3.0
+  bin HTpho [] 700 2000 and MET [] 350 450
+  bin HTpho [] 700 2000 and MET [] 450 600
+  bin HTpho [] 700 2000 and MET >= 600
+  bin HTpho > 2000 and MET [] 350 450
+  bin HTpho > 2000 and MET [] 450 600
+  bin HTpho > 2000 and MET >= 600
 

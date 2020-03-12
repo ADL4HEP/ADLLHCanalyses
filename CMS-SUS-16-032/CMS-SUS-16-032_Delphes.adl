@@ -32,15 +32,15 @@ object cjets
 object muons
   take Muon
   select pT > 10
-  select abs(eta) < 2.4
-  select D0 < 2
+  select abs(Eta) < 2.4
+  select abs(d0) < 2
   # relative isolation Irel < 0.10
 
 object electrons
   take Electron
   select pT > 10
-  select abs(eta) < 2.4
-  select D0 < 2
+  select abs(Eta) < 2.4
+  select abs(d0) < 2
   # relative isolation Irel < 0.21
 
 #object vetotracks

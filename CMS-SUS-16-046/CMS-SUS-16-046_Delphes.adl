@@ -42,7 +42,7 @@ region SRs
   select MET.pT > 300
   select MTpho > 300
   select STpho > 600
-  bin STpho 600 800 100 1300
+  bin STpho 600 800 1000 1300
 
 
 

@@ -8,47 +8,106 @@
 #  hepdata 
 #  doi 10.1016/j.physletb.2018.05.062
 
-object muons : MUO
-  select {MUO_}Pt [] 3.5 30
-  select abs({MUO_}Eta) < 2.4
+object muons
+  take Muon
+  select Pt(Muon) [] 3.5 30
+  select abs(Eta(Muon)) < 2.4
 # e.g. select IsolationVarRhoCorr < 0.1
 # Contained in the provided CMS efficiencies
 
-object electrons : ELE
-  select {ELE_}Pt [] 3.5 30
-  select Abs({ELE_}Eta) < 2.5
+object electrons
+  take Electron
+  select Pt(Electron) [] 3.5 30
+  select abs(Eta(Electron)) < 2.5
 # select some ID and iso - check with Delphes
 # Contained in the provided CMS efficiencies
 # select pT < 10 ? loose == 1 : tight == 1
-  
-object jets : JET
-  select {JET_}Pt > 25  
-  select Abs({JET_}Eta) < 2.4
 
-object bjets : jets
-  select {JET_}BTag == 1
+object leptons : Union(electrons, muons)
 
+object jets
+  take Jet
+  select Pt(Jet) > 25
+  select abs(Eta(Jet)) < 2.4
+
+object bjets
+  take jets
+  select BTag(jets) == 1
+
+define dilepton = leptons[0] leptons[1]
+define MTl1 = sqrt( 2*Pt(leptons[0]) * MET*(1-cos( Phi(METLV[0]) - Phi(leptons[0]) )))
+define MTl2 = sqrt( 2*Pt(leptons[1]) * MET*(1-cos( Phi(METLV[0]) - Phi(leptons[1]) )))
 define dimuon = muons[0] muons[1]
-define MTm1 = sqrt( 2*{muons[0]}Pt * MET*(1-cos( {METLV[0]}Phi - {muons[0]}Phi )))
-define MTm2 = sqrt( 2*{muons[1]}Pt * MET*(1-cos( {METLV[0]}Phi - {muons[1]}Phi )))
+define MTm1 = sqrt( 2*Pt(muons[0]) * MET*(1-cos( Phi(METLV[0]) - Phi(muons[0]) )))
+define MTm2 = sqrt( 2*Pt(muons[1]) * MET*(1-cos( Phi(METLV[0]) - Phi(muons[1]) )))
 
-region w1dimuon
+# Dilepton preselection region
+region dileptonpresel
   select ALL
-  weight xsec 0.688016
-  #weight xsec 0.6895
-  select Size(muons) == 2
-  select {muons[0]}Pt [] 5 30
-  select {muons[1]}Pt [] 5 30
-  select {muons[0]}q * {muons[1]}q == -1
-  select {dimuon}Pt > 3 
-  select {dimuon}m [] 4 50 
-  select {dimuon}m ][ 9 10.5
-  select {METLV[0]}Pt [] 125 200
-  weight trigger 0.65 
+  select Size(electrons) >= 0 and Size(muons) >= 0
+  select Size(leptons) == 2
+  select Pt(leptons[0]) [] 5 30
+  select Pt(leptons[1]) [] 5 30
+  select q(leptons[0]) * q(leptons[1]) == -1
+  select Pt(dilepton) > 3
+  select m(dilepton) [] 4 50
+  select m(dilepton) ][ 9 10.5
+  select Size(muons) == 2 ? Pt(METLV[0]) > 125 : Pt(METLV[0]) > 200
+  weight trigger 0.65
   select Size(jets) >= 1
   select HT(jets) > 100
-  select {METLV[0]}Pt / HT(jets) [] 0.6 1.4
+  select Pt(METLV[0]) / HT(jets) [] 0.6 1.4
   select Size(bjets) == 0
-  reject fMTauTau(muons[0], muons[1]) [] 0 160 
-  select MTm1 < 70 AND MTm2 < 70
+  reject fMTauTau(leptons[0], leptons[1]) [] 0 160
+  select MTl1 < 70 AND MTl2 < 70
 
+# Signal bins for EWK gaugino search
+region ewkbins
+  dileptonpresel
+  select Size(electrons) == 2 or Size(muons) == 2
+  bin MET [] 125 200 and m(dilepton) [] 4 9
+  bin MET [] 125 200 and m(dilepton) [] 10.5 20
+  bin MET [] 125 200 and m(dilepton) [] 20 30
+  bin MET [] 125 200 and m(dilepton) [] 30 50
+  bin MET [] 200 250 and m(dilepton) [] 4 9
+  bin MET [] 200 250 and m(dilepton) [] 10.5 20
+  bin MET [] 200 250 and m(dilepton) [] 20 30
+  bin MET [] 200 250 and m(dilepton) [] 30 50
+  bin MET > 250 and m(dilepton) [] 4 9
+  bin MET > 250 and m(dilepton) [] 10.5 20
+  bin MET > 250 and m(dilepton) [] 20 30
+  bin MET > 250 and m(dilepton) [] 30 50
+
+# Signal bins for stop search
+region stopbins
+  dileptonpresel
+  select Size(electrons) == 1 and Size(muons) == 1
+  bin MET [] 125 200 and Pt(leptons[0]) [] 5 12
+  bin MET [] 125 200 and Pt(leptons[0]) [] 12 20
+  bin MET [] 125 200 and Pt(leptons[0]) [] 20 30
+  bin MET [] 200 300 and Pt(leptons[0]) [] 5 12
+  bin MET [] 200 300 and Pt(leptons[0]) [] 12 20
+  bin MET [] 200 300 and Pt(leptons[0]) [] 20 30
+  bin MET > 300 and Pt(leptons[0]) [] 5 12
+  bin MET > 300 and Pt(leptons[0]) [] 12 20
+  bin MET > 300 and Pt(leptons[0]) [] 20 30
+
+# Dimuon preselection for validation wrt cutflows provided by CMS
+# http://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-16-048/index.html
+region dimuonpresel
+  select ALL
+  select Size(muons) == 2
+  select Pt(muons[0]) [] 5 30
+  select Pt(muons[1]) [] 5 30
+  select q(muons[0]) * q(muons[1]) == -1
+  select Pt(dimuon) > 3
+  select m(dimuon) [] 4 50
+  select m(dimuon) ][ 9 10.5
+  select Pt(METLV[0]) [] 125 200
+  weight trigger 0.65
+  select Size(jets) >= 1
+  select HT(jets) > 100
+  select Pt(METLV[0]) / HT(jets) [] 0.6 1.4
+  select Size(bjets) == 0
+  reject fMTauTau(muons[0], muons[1]) [] 0 160
+  select MTm1 < 70 AND MTm2 < 70
