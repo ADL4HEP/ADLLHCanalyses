@@ -6,7 +6,8 @@ ADL (for Analysis Description Language) [1,2] is a recently developed domain-spe
 There are currently two interpreters that parse and run analyses written in ADL: __adl2tnm__ [3] and __CutLang__ [4,5].
 __adl2tnm__ is a Python transpiler that converts an analysis written in ADL into a complete C++ analysis code. __CutLang__ is a runtime interpreter that directly runs an analysis written in ADL on events without the need for compilation. Both frameworks can process a variety of event formats and be used for experimental analysis or phenomenology studies. A parser from ADL to Rivet is also under development.
 
-(this repository is now added to CutLang git repository as a submodule)
+This repository is also added to CutLang git repository as a submodule.
+https://github.com/unelg/CutLang
 
 References:
 
