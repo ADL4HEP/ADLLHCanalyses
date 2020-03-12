@@ -1,6 +1,7 @@
 # ADLLHCanalyses
 ADL implementations of LHC analyses
-this is not added to CutLang git repository as a submodule
+
+(this is not added to CutLang git repository as a submodule)
 
 ADL (for Analysis Description Language) [1,2] is a recently developed domain-specific language for describing event selections.In ADL, analyses are written in plain text files separating object, variable and event selection definitions in blocks following a keyword-value structure, where keywords specify analysis concepts and operations. ADL syntax includes mathematical and logical operations, comparison and optimisation operators, reducers, four-vector algebra and common HEP-specific functions (e.g. d\phi, dR).  ADL files can be complemented by and can refer to self-contained functions encapsulating variables with complex algorithms (e.g. M_T2, aplanarity) or non-analytic variables (e.g. efficiency tables, machine learning discriminators). 
 
