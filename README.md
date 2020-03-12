@@ -5,8 +5,8 @@ ADL implementations of LHC analyses
 
 ADL (for Analysis Description Language) [1,2] is a recently developed domain-specific language for describing event selections.In ADL, analyses are written in plain text files separating object, variable and event selection definitions in blocks following a keyword-value structure, where keywords specify analysis concepts and operations. ADL syntax includes mathematical and logical operations, comparison and optimisation operators, reducers, four-vector algebra and common HEP-specific functions (e.g. d\phi, dR).  ADL files can be complemented by and can refer to self-contained functions encapsulating variables with complex algorithms (e.g. M_T2, aplanarity) or non-analytic variables (e.g. efficiency tables, machine learning discriminators). 
 
-There are currently two interpreters that parse and run analyses written in ADL: __adl2tnm__ [3] and __cutlang__ [4,5].
-__adl2tnm__ is a Python transpiler that converts an analysis written in ADL into a complete C++ analysis code. __cutlang__ is a runtime interpreter that directly runs an analysis written in ADL on events without the need for compilation. Both frameworks can process a variety of event formats and be used for experimental analysis or phenomenology studies. 
+There are currently two interpreters that parse and run analyses written in ADL: __adl2tnm__ [3] and __CutLang__ [4,5].
+__adl2tnm__ is a Python transpiler that converts an analysis written in ADL into a complete C++ analysis code. __CutLang__ is a runtime interpreter that directly runs an analysis written in ADL on events without the need for compilation. Both frameworks can process a variety of event formats and be used for experimental analysis or phenomenology studies. A parser from ADL to Rivet is also under development.
 
 References:
 
