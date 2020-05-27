@@ -1,0 +1,386 @@
+#info analysis
+#  title " Search for supersymmetry in proton-proton collisions at 13 TeV in final states with jets and missing transverse momentum"
+#  experiment CMS
+#  id SUS-19-006
+#  publication JHEP 10 (2019) 244
+#  sqrtS 13.0
+#  lumi 137
+#  arXiv 1908.04722  
+#  hepdata https://www.hepdata.net/record/ins1749379
+#  doi 10.1007/JHEP10(2019)244
+
+table btagdeepCSVmedium
+  tabletype efficiency
+  nvars 1
+  errors true
+  # val    err-     err+     xmin     xmax
+  0.5790   0.0016   0.0016    -10.4     30.0
+  0.6314   0.0013   0.0013     30.0     35.0
+  0.6442   0.0011   0.0011     35.0     40.0
+  0.6596   0.0007   0.0007     40.0     50.0
+  0.6727   0.0007   0.0007     50.0     60.0
+  0.6812   0.0008   0.0008     60.0     70.0
+  0.6855   0.0008   0.0008     70.0     80.0
+  0.6873   0.0009   0.0009     80.0     90.0
+  0.6881   0.0010   0.0010     90.0    100.0
+  0.6880   0.0008   0.0008    100.0    125.0
+  0.6867   0.0011   0.0011    125.0    150.0
+  0.6826   0.0015   0.0015    150.0    175.0
+  0.6734   0.0020   0.0020    175.0    200.0
+  0.6624   0.0026   0.0026    200.0    225.0
+  0.6494   0.0034   0.0034    225.0    250.0
+  0.6419   0.0044   0.0044    250.0    275.0
+  0.6301   0.0054   0.0054    275.0    300.0
+  0.6202   0.0051   0.0051    300.0    350.0
+  0.6006   0.0073   0.0073    350.0    400.0
+  0.5889   0.0098   0.0098    400.0    450.0
+  0.5798   0.0126   0.0126    450.0    500.0
+  0.5547   0.0118   0.0118    500.0    600.0
+  0.5412   0.0172   0.0172    600.0    700.0
+  0.5197   0.0234   0.0234    700.0    800.0
+  0.4959   0.0243   0.0243    800.0   7000.0
+
+# OBJECT SELECTION
+
+object jets 
+  take Jet
+  select pT(Jet) > 30  
+  select abs(Eta(Jet)) < 2.4
+
+object jetsmht 
+  take Jet
+  select pT(Jet) > 30  
+  select abs(Eta(Jet)) < 5
+
+object bjets
+  take jets
+  select applyHM( btagdeepCSVmedium( Pt(Jet) ) == 1)
+  #select DeepCSV > 0.6324, 0.4941 # 2016, 2017+18. Eff = 55-70 for pT=20-400
+
+object vetomuons
+  take Muon
+  select pT(Muon) > 10
+  select abs(Eta(Muon)) < 2.4
+  select abs(d0(Muon)) < 2
+  # relative isolation
+
+object vetoelectrons
+  take Electron
+  select pT(Electron) > 10
+  select abs(eta(Electron)) < 2.4
+  select abs(d0(Electron)) < 2
+  # relative isolation
+
+object vetoleptons : Union(vetoelectrons, vetomuons)
+
+object vetophotons
+  take Photon
+  select pT(Photon) > 100
+  select abs(eta(Photon)) < 2.5
+
+object MHTLVobj
+  take jetsmht
+  select sum(jetsmht) == 1
+
+# define HT = sum(pT(jets))
+define MHTLV = MHTLVobj[0]
+define MHT = pT( MHTLV )
+
+# preselection region
+region presel
+  select size(jets) >= 2
+  select HT > 300
+  select size(jetsmht) >= 0
+  select size(MHTLVobj) >= 0
+  select MHT > 300
+  select HT - MHT > 0
+  select size(vetomuons) == 0
+  select size(vetoelectrons) == 0
+  #select size(isotracks) == 0
+  select size(vetophotons) == 0
+  select dphi(jets[0], MHTLV) > 0.5
+  select dphi(jets[1], MHTLV) > 0.5
+  select size(jets) >= 3 ? dphi(jets[2], MHTLV) > 0.3 : ALL
+  select size(jets) >= 4 ? dphi(jets[3], MHTLV) > 0.3 : ALL
+
+region searchbins
+  presel
+  # Table 3, 1-10
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 2 3 and size(bjets) == 0
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 2 3 and size(bjets) == 0
+  bin MHT [] 300 350 and HT > 1200 and size(jets) [] 2 3 and size(bjets) == 0
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 2 3 and size(bjets) == 0
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 2 3 and size(bjets) == 0
+  bin MHT [] 350 600 and HT > 1200 and size(jets) [] 2 3 and size(bjets) == 0
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 2 3 and size(bjets) == 0
+  bin MHT [] 600 850 and HT > 1200 and size(jets) [] 2 3 and size(bjets) == 0
+  bin MHT > 850 and HT [] 850 1700 and size(jets) [] 2 3 and size(bjets) == 0
+  bin MHT > 850 and HT > 1700 and size(jets) [] 2 3 and size(bjets) == 0
+  # Table 3, 11-20
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 2 3 and size(bjets) == 1
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 2 3 and size(bjets) == 1
+  bin MHT [] 300 350 and HT > 1200 and size(jets) [] 2 3 and size(bjets) == 1
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 2 3 and size(bjets) == 1
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 2 3 and size(bjets) == 1
+  bin MHT [] 350 600 and HT > 1200 and size(jets) [] 2 3 and size(bjets) == 1
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 2 3 and size(bjets) == 1
+  bin MHT [] 600 850 and HT > 1200 and size(jets) [] 2 3 and size(bjets) == 1
+  bin MHT > 850 and HT [] 850 1700 and size(jets) [] 2 3 and size(bjets) == 1
+  bin MHT > 850 and HT > 1700 and size(jets) [] 2 3 and size(bjets) == 1
+  # Table 3, 21-30
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 2 3 and size(bjets) >= 2
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 2 3 and size(bjets) >= 2
+  bin MHT [] 300 350 and HT > 1200 and size(jets) [] 2 3 and size(bjets) >= 2
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 2 3 and size(bjets) >= 2
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 2 3 and size(bjets) >= 2
+  bin MHT [] 350 600 and HT > 1200 and size(jets) [] 2 3 and size(bjets) >= 2
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 2 3 and size(bjets) >= 2
+  bin MHT [] 600 850 and HT > 1200 and size(jets) [] 2 3 and size(bjets) >= 2
+  bin MHT > 850 and HT [] 850 1700 and size(jets) [] 2 3 and size(bjets) >= 2
+  bin MHT > 850 and HT > 1700 and size(jets) [] 2 3 and size(bjets) >= 2
+  # Table 4, 31-40
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 4 5 and size(bjets) == 0
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) == 0
+  bin MHT [] 300 350 and HT > 1200 and size(jets) [] 4 5 and size(bjets) == 0
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 4 5 and size(bjets) == 0
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) == 0
+  bin MHT [] 350 600 and HT > 1200 and size(jets) [] 4 5 and size(bjets) == 0
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) == 0
+  bin MHT [] 600 850 and HT > 1200 and size(jets) [] 4 5 and size(bjets) == 0
+  bin MHT > 850 and HT [] 850 1700 and size(jets) [] 4 5 and size(bjets) == 0
+  bin MHT > 850 and HT > 1700 and size(jets) [] 4 5 and size(bjets) == 0
+  # Table 4, 41-50
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 4 5 and size(bjets) == 1
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) == 1
+  bin MHT [] 300 350 and HT > 1200 and size(jets) [] 4 5 and size(bjets) == 1
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 4 5 and size(bjets) == 1
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) == 1
+  bin MHT [] 350 600 and HT > 1200 and size(jets) [] 4 5 and size(bjets) == 1
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) == 1
+  bin MHT [] 600 850 and HT > 1200 and size(jets) [] 4 5 and size(bjets) == 1
+  bin MHT > 850 and HT [] 850 1700 and size(jets) [] 4 5 and size(bjets) == 1
+  bin MHT > 850 and HT > 1700 and size(jets) [] 4 5 and size(bjets) == 1
+  # Table 4, 51-60
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 4 5 and size(bjets) == 2
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) == 2
+  bin MHT [] 300 350 and HT > 1200 and size(jets) [] 4 5 and size(bjets) == 2
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 4 5 and size(bjets) == 2
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) == 2
+  bin MHT [] 350 600 and HT > 1200 and size(jets) [] 4 5 and size(bjets) == 2
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) == 2
+  bin MHT [] 600 850 and HT > 1200 and size(jets) [] 4 5 and size(bjets) == 2
+  bin MHT > 850 and HT [] 850 1700 and size(jets) [] 4 5 and size(bjets) == 2
+  bin MHT > 850 and HT > 1700 and size(jets) [] 4 5 and size(bjets) == 2
+  # Table 4, 61-70
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 4 5 and size(bjets) >= 3
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) >= 3
+  bin MHT [] 300 350 and HT > 1200 and size(jets) [] 4 5 and size(bjets) >= 3
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 4 5 and size(bjets) >= 3
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) >= 3
+  bin MHT [] 350 600 and HT > 1200 and size(jets) [] 4 5 and size(bjets) >= 3
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) >= 3
+  bin MHT [] 600 850 and HT > 1200 and size(jets) [] 4 5 and size(bjets) >= 3
+  bin MHT > 850 and HT [] 850 1700 and size(jets) [] 4 5 and size(bjets) >= 3
+  bin MHT > 850 and HT > 1700 and size(jets) [] 4 5 and size(bjets) >= 3
+  # Table 5, 71-80
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 6 7 and size(bjets) == 0
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) == 0
+  bin MHT [] 300 350 and HT > 1200 and size(jets) [] 6 7 and size(bjets) == 0
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 6 7 and size(bjets) == 0
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) == 0
+  bin MHT [] 350 600 and HT > 1200 and size(jets) [] 6 7 and size(bjets) == 0
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) == 0
+  bin MHT [] 600 850 and HT > 1200 and size(jets) [] 6 7 and size(bjets) == 0
+  bin MHT > 850 and HT [] 850 1700 and size(jets) [] 6 7 and size(bjets) == 0
+  bin MHT > 850 and HT > 1700 and size(jets) [] 6 7 and size(bjets) == 0
+  # Table 5, 81-90
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 6 7 and size(bjets) == 1
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) == 1
+  bin MHT [] 300 350 and HT > 1200 and size(jets) [] 6 7 and size(bjets) == 1
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 6 7 and size(bjets) == 1
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) == 1
+  bin MHT [] 350 600 and HT > 1200 and size(jets) [] 6 7 and size(bjets) == 1
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) == 1
+  bin MHT [] 600 850 and HT > 1200 and size(jets) [] 6 7 and size(bjets) == 1
+  bin MHT > 850 and HT [] 850 1700 and size(jets) [] 6 7 and size(bjets) == 1
+  bin MHT > 850 and HT > 1700 and size(jets) [] 6 7 and size(bjets) == 1
+  # Table 5, 91-100
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 6 7 and size(bjets) == 2
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) == 2
+  bin MHT [] 300 350 and HT > 1200 and size(jets) [] 6 7 and size(bjets) == 2
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 6 7 and size(bjets) == 2
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) == 2
+  bin MHT [] 350 600 and HT > 1200 and size(jets) [] 6 7 and size(bjets) == 2
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) == 2
+  bin MHT [] 600 850 and HT > 1200 and size(jets) [] 6 7 and size(bjets) == 2
+  bin MHT > 850 and HT [] 850 1700 and size(jets) [] 6 7 and size(bjets) == 2
+  bin MHT > 850 and HT > 1700 and size(jets) [] 6 7 and size(bjets) == 2
+  # Table 5, 101-110
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 6 7 and size(bjets) >= 3
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) >= 3
+  bin MHT [] 300 350 and HT > 1200 and size(jets) [] 6 7 and size(bjets) >= 3
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 6 7 and size(bjets) >= 3
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) >= 3
+  bin MHT [] 350 600 and HT > 1200 and size(jets) [] 6 7 and size(bjets) >= 3
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) >= 3
+  bin MHT [] 600 850 and HT > 1200 and size(jets) [] 6 7 and size(bjets) >= 3
+  bin MHT > 850 and HT [] 850 1700 and size(jets) [] 6 7 and size(bjets) >= 3
+  bin MHT > 850 and HT > 1700 and size(jets) [] 6 7 and size(bjets) >= 3
+  # Table 6, 111-118
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) == 0
+  bin MHT [] 300 350 and HT > 1200 and size(jets) [] 8 9 and size(bjets) == 0
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) == 0
+  bin MHT [] 350 600 and HT > 1200 and size(jets) [] 8 9 and size(bjets) == 0
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) == 0
+  bin MHT [] 600 850 and HT > 1200 and size(jets) [] 8 9 and size(bjets) == 0
+  bin MHT > 850 and HT [] 850 1700 and size(jets) [] 8 9 and size(bjets) == 0
+  bin MHT > 850 and HT > 1700 and size(jets) [] 8 9 and size(bjets) == 0
+  # Table 6, 119-126
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) == 1
+  bin MHT [] 300 350 and HT > 1200 and size(jets) [] 8 9 and size(bjets) == 1
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) == 1
+  bin MHT [] 350 600 and HT > 1200 and size(jets) [] 8 9 and size(bjets) == 1
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) == 1
+  bin MHT [] 600 850 and HT > 1200 and size(jets) [] 8 9 and size(bjets) == 1
+  bin MHT > 850 and HT [] 850 1700 and size(jets) [] 8 9 and size(bjets) == 1
+  bin MHT > 850 and HT > 1700 and size(jets) [] 8 9 and size(bjets) == 1
+  # Table 6, 127-134
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) == 2
+  bin MHT [] 300 350 and HT > 1200 and size(jets) [] 8 9 and size(bjets) == 2
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) == 2
+  bin MHT [] 350 600 and HT > 1200 and size(jets) [] 8 9 and size(bjets) == 2
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) == 2
+  bin MHT [] 600 850 and HT > 1200 and size(jets) [] 8 9 and size(bjets) == 2
+  bin MHT > 850 and HT [] 850 1700 and size(jets) [] 8 9 and size(bjets) == 2
+  bin MHT > 850 and HT > 1700 and size(jets) [] 8 9 and size(bjets) == 2
+  # Table 6, 135-142
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) >= 3
+  bin MHT [] 300 350 and HT > 1200 and size(jets) [] 8 9 and size(bjets) >= 3
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) >= 3
+  bin MHT [] 350 600 and HT > 1200 and size(jets) [] 8 9 and size(bjets) >= 3
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) >= 3
+  bin MHT [] 600 850 and HT > 1200 and size(jets) [] 8 9 and size(bjets) >= 3
+  bin MHT > 850 and HT [] 850 1700 and size(jets) [] 8 9 and size(bjets) >= 3
+  bin MHT > 850 and HT > 1700 and size(jets) [] 8 9 and size(bjets) >= 3
+  # Table 7, 143-150
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) == 0
+  bin MHT [] 300 350 and HT > 1200 and size(jets) >= 10 and size(bjets) == 0
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) == 0
+  bin MHT [] 350 600 and HT > 1200 and size(jets) >= 10 and size(bjets) == 0
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) == 0
+  bin MHT [] 600 850 and HT > 1200 and size(jets) >= 10 and size(bjets) == 0
+  bin MHT > 850 and HT [] 850 1700 and size(jets) >= 10 and size(bjets) == 0
+  bin MHT > 850 and HT > 1700 and size(jets) >= 10 and size(bjets) == 0
+  # Table 7, 151-158
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) == 1
+  bin MHT [] 300 350 and HT > 1200 and size(jets) >= 10 and size(bjets) == 1
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) == 1
+  bin MHT [] 350 600 and HT > 1200 and size(jets) >= 10 and size(bjets) == 1
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) == 1
+  bin MHT [] 600 850 and HT > 1200 and size(jets) >= 10 and size(bjets) == 1
+  bin MHT > 850 and HT [] 850 1700 and size(jets) >= 10 and size(bjets) == 1
+  bin MHT > 850 and HT > 1700 and size(jets) >= 10 and size(bjets) == 1
+  # Table 7, 159-166
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) == 2
+  bin MHT [] 300 350 and HT > 1200 and size(jets) >= 10 and size(bjets) == 2
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) == 2
+  bin MHT [] 350 600 and HT > 1200 and size(jets) >= 10 and size(bjets) == 2
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) == 2
+  bin MHT [] 600 850 and HT > 1200 and size(jets) >= 10 and size(bjets) == 2
+  bin MHT > 850 and HT [] 850 1700 and size(jets) >= 10 and size(bjets) == 2
+  bin MHT > 850 and HT > 1700 and size(jets) >= 10 and size(bjets) == 2
+  # Table 7, 167-174
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) >= 3
+  bin MHT [] 300 350 and HT > 1200 and size(jets) >= 10 and size(bjets) >= 3
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) >= 3
+  bin MHT [] 350 600 and HT > 1200 and size(jets) >= 10 and size(bjets) >= 3
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) >= 3
+  bin MHT [] 600 850 and HT > 1200 and size(jets) >= 10 and size(bjets) >= 3
+  bin MHT > 850 and HT [] 850 1700 and size(jets) >= 10 and size(bjets) >= 3
+  bin MHT > 850 and HT > 1700 and size(jets) >= 10 and size(bjets) >= 3
+
+# Aggregate search regions as shown in Table 9
+region ASR1
+  presel
+  select MHT >= 600
+  select HT >= 600
+  select size(jets) >= 2
+  select size(bjets) == 0
+
+region ASR2
+  presel
+  select MHT >= 850
+  select HT >= 1700
+  select size(jets) >= 4
+  select size(bjets) == 0
+
+region ASR3
+  presel
+  select MHT >= 600
+  select HT >= 600
+  select size(jets) >= 6
+  select size(bjets) == 0
+
+region ASR4
+  presel
+  select MHT >= 600
+  select HT >= 600
+  select size(jets) >= 8
+  select size(bjets) [] 0 1
+
+region ASR5
+  presel
+  select MHT >= 850
+  select HT >= 1700
+  select size(jets) >= 10
+  select size(bjets) [] 0 1
+
+region ASR6
+  presel
+  select MHT >= 300
+  select HT >= 300
+  select size(jets) >= 4
+  select size(bjets) >= 2
+
+region ASR7
+  presel
+  select MHT >= 600
+  select HT >= 600
+  select size(jets) >= 2
+  select size(bjets) >= 2
+
+region ASR8
+  presel
+  select MHT >= 350
+  select HT >= 350
+  select size(jets) >= 6
+  select size(bjets) >= 2
+
+region ASR9
+  presel
+  select MHT >= 600
+  select HT >= 600
+  select size(jets) >= 4
+  select size(bjets) >= 2
+
+region ASR10
+  presel
+  select MHT >= 300
+  select HT >= 300
+  select size(jets) >= 8
+  select size(bjets) >= 3
+
+region ASR11
+  presel
+  select MHT >= 600
+  select HT >= 600
+  select size(jets) >= 6
+  select size(bjets) == 1
+
+region ASR12
+  presel
+  select MHT >= 850
+  select HT >= 850
+  select size(jets) >= 10
+  select size(bjets) >= 3
+
