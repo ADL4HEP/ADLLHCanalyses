@@ -55,7 +55,7 @@ define MCT = 2*pT(jets[0]) * pT(jets[1]) * (1 + cos( dPhi( jets[0], jets[1] )))
 #define dphimin2j = min(dPhi(jets[0:1], METLV_0)) ###### broken in CL
 #define dphimin = min(dPhi(jets[0:2], METLV_0)) ###### broken in CL
 define HT01 = pT(jets[0]) + pT(jets[1])
-define HTbc = HT(bjets) + HT(cjets)
+define HTbc = fHT(bjets) + fHT(cjets)
 
 # EVENT SELECTION
 # The noncompressed search regions

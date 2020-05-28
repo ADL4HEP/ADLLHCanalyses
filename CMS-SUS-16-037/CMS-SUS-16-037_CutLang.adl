@@ -40,7 +40,7 @@ object leptons : Union(electrons, muons)
   
 define MJ = Sum( m(largejets) )
 define MTl = Sqrt( 2*pT(leptons[0]) * MET*(1-cos(phi(METLV[0]) - phi(leptons[0]) )))
-define ST = HT(jets) + pT(leptons[0])
+define ST = fHT(jets) + pT(leptons[0])
 
 # Baseline selection
 region baseline

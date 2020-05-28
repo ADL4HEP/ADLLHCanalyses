@@ -22,7 +22,7 @@ object jets
   reject dR(Jet, photons) < 0.4 
 
 # Variables
-define HTpho = HT(jets) + pT(photons[0])
+define HTpho = fHT(jets) + pT(photons[0])
 
 # signal regions
 region SRs

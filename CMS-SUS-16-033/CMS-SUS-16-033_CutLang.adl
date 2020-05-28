@@ -38,12 +38,13 @@ object electrons
   
 define MHLV = -jetsmht_
 define MHT = pT( MHLV )
+define HT = fHT(jets)
 
 # preselection region
 region presel
   select size(jets) >= 2
   select size(jetsmht) >= 0
-  select HT(jets) > 300
+  select HT > 300
   select MHT > 50
   select size(muons) == 0
   select size(electrons) == 0

@@ -60,6 +60,7 @@ object bjets
 define LepT = pT(leptons[0]) + MET
 define Wlep = leptons[0] METLV[0]
 define dphilW = dPhi(leptons[0], Wlep)
+define HT = fHT(jets)
 
 # EVENT SELECTION
 region baseline
@@ -74,7 +75,7 @@ region baseline
   select {jets[0] }pT > 80
   select {jets[1] }pT > 80
   select LepT > 250
-  select HT(jets) > 500
+  select HT > 500
   select dphilW > 0.5
 
 
@@ -88,42 +89,42 @@ region zerobSR1
   select size(jets) >= 5
   select LepT >= 650
   select dphilW > 0.5
-  select HT(jets) >= 750
+  select HT >= 750
 
 region zerobSR2
   multib
   select size(jets) >= 6
   select LepT >= 450
   select dphilW > 0.75
-  select HT(jets) >= 500
+  select HT >= 500
 
 region zerobSR3
   multib
   select size(jets) >= 6
   select LepT >= 650
   select dphilW > 0.5
-  select HT(jets) >= 1000
+  select HT >= 1000
 
 region zerobSR4
   multib
   select size(jets) >= 7
   select LepT >= 450
   select dphilW > 0.75
-  select HT(jets) >= 500
+  select HT >= 500
 
 region zerobSR5
   multib
   select size(jets) >= 7
   select LepT >= 650
   select dphilW > 0.5
-  select HT(jets) >= 500
+  select HT >= 500
 
 region zerobSR6
   multib
   select size(jets) >= 8
   select LepT >= 250
   select dphilW > 1.0
-  select HT(jets) >= 1250
+  select HT >= 1250
 
 
 # Many bins njets, nb, LT, dphilW, HT
@@ -139,7 +140,7 @@ region multibSR1
   select size(jets) >= 6
   select LepT >= 600
   select dphilW > 0.5
-  select HT(jets) >= 1000
+  select HT >= 1000
 
 region multibSR2
   multib
@@ -147,7 +148,7 @@ region multibSR2
   select size(jets) >= 6
   select LepT >= 600
   select dphilW > 0.5
-  select HT(jets) >= 1000
+  select HT >= 1000
 
 region multibSR3
   multib
@@ -155,7 +156,7 @@ region multibSR3
   select size(jets) >= 9
   select LepT >= 450
   select dphilW > 0.75
-  select HT(jets) >= 500
+  select HT >= 500
 
 region multibSR4
   multib
@@ -163,7 +164,7 @@ region multibSR4
   select size(jets) >= 9
   select LepT >= 450
   select dphilW > 0.75
-  select HT(jets) >= 1500
+  select HT >= 1500
 
 region multibSR5
   multib
@@ -171,7 +172,7 @@ region multibSR5
   select size(jets) >= 9
   select LepT >= 250
   select dphilW > 1.0
-  select HT(jets) >= 500
+  select HT >= 500
 
 region multibSR6
   multib
@@ -179,7 +180,7 @@ region multibSR6
   select size(jets) >= 9
   select LepT >= 250
   select dphilW > 1.0
-  select HT(jets) >= 1500
+  select HT >= 1500
 
 region multibSR7
   multib
@@ -187,7 +188,7 @@ region multibSR7
   select size(jets) >= 9
   select LepT >= 450
   select dphilW > 0.75
-  select HT(jets) >= 500
+  select HT >= 500
 
 region multibSR8
   multib
@@ -195,7 +196,7 @@ region multibSR8
   select size(jets) >= 9
   select LepT >= 450
   select dphilW > 0.75
-  select HT(jets) >= 1500
+  select HT >= 1500
 
 
 

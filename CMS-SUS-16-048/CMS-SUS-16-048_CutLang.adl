@@ -40,6 +40,7 @@ define MTl2 = sqrt( 2*Pt(leptons[1]) * MET*(1-cos( Phi(METLV[0]) - Phi(leptons[1
 define dimuon = muons[0] muons[1]
 define MTm1 = sqrt( 2*Pt(muons[0]) * MET*(1-cos( Phi(METLV[0]) - Phi(muons[0]) )))
 define MTm2 = sqrt( 2*Pt(muons[1]) * MET*(1-cos( Phi(METLV[0]) - Phi(muons[1]) )))
+define HT = fHT(jets)
 
 # Dilepton preselection region
 region dileptonpresel
@@ -55,8 +56,8 @@ region dileptonpresel
   select Size(muons) == 2 ? Pt(METLV[0]) > 125 : Pt(METLV[0]) > 200
   weight trigger 0.65
   select Size(jets) >= 1
-  select HT(jets) > 100
-  select Pt(METLV[0]) / HT(jets) [] 0.6 1.4
+  select HT > 100
+  select Pt(METLV[0]) / HT [] 0.6 1.4
   select Size(bjets) == 0
   reject fMTauTau(leptons[0], leptons[1]) [] 0 160
   select MTl1 < 70 AND MTl2 < 70
@@ -106,8 +107,8 @@ region dimuonpresel
   select Pt(METLV[0]) [] 125 200
   weight trigger 0.65
   select Size(jets) >= 1
-  select HT(jets) > 100
-  select Pt(METLV[0]) / HT(jets) [] 0.6 1.4
+  select HT > 100
+  select Pt(METLV[0]) / HT [] 0.6 1.4
   select Size(bjets) == 0
   reject fMTauTau(muons[0], muons[1]) [] 0 160
   select MTm1 < 70 AND MTm2 < 70

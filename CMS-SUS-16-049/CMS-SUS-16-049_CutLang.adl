@@ -83,7 +83,7 @@ object taujets
 define MTb0 = sqrt( 2*{bjets[0]}pT * MET*(1-cos({METLV_0}Phi - {bjets[0]}Phi )))
 define MTb1 = sqrt( 2*{bjets[1]}pT * MET*(1-cos({METLV_0}Phi - {bjets[1]}Phi )))
 define MTbmin = min(MTb0, MTb1)
-define SMET = MET / sqrt(HT(jets))
+define SMET = MET / sqrt(fHT(jets))
 
 # EVENT SELECTION
 

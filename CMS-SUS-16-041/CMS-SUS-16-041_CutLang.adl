@@ -52,8 +52,9 @@ object OSdileptons : COMB(leptons[-1] leptons[-2]) alias adilepton
   select pdgID(adilepton) == 0
   select     m(adilepton) > 12 
 
-define theDilepton : OSdileptons[-1]
-define Zreco : leptons[-1] leptons[-2]
+define theDilepton = OSdileptons[-1]
+define Zreco = leptons[-1] leptons[-2]
+define HT = fHT(jets)
 
 ###################################
 
@@ -95,24 +96,24 @@ region offZ
 ## As the values cover the whole range, none of this is necessary for the 
 #region onZhighHT
 #  onZ
-#  select HT(jets) > 400 
+#  select HT > 400 
 #  select abs(pdgID(leptons[0])) == 11 ? pT(leptons[0]) > 25 : pT(leptons[0]) > 20
 #  select abs(pdgID(leptons[1])) == 11 ? pT(leptons[1]) > 15 : pT(leptons[1]) > 10
  
 #region onZlowHT
 #  onZ
-#  select HT(jets) [] 60 400 
+#  select HT [] 60 400 
 #  select abs(pdgID(leptons[0])) == 11 ? pT(leptons[0]) > 15 : pT(leptons[0]) > 10
 #  select abs(pdgID(leptons[1])) == 11 ? pT(leptons[1]) > 15 : pT(leptons[1]) > 10
  
 #region offZhighHT
 #  offZ
-#  select HT(jets) > 400 
+#  select HT > 400 
 #  select abs(pdgID(leptons[0])) == 11 ? pT(leptons[0]) > 25 : pT(leptons[0]) > 20
 #  select abs(pdgID(leptons[1])) == 11 ? pT(leptons[1]) > 15 : pT(leptons[1]) > 10
  
 #region offZlowHT
 #  onZ
-#  select HT(jets) [] 60 400 
+#  select HT [] 60 400 
 #  select abs(pdgID(leptons[0])) == 11 ? pT(leptons[0]) > 15 : pT(leptons[0]) > 10
 #  select abs(pdgID(leptons[1])) == 11 ? pT(leptons[1]) > 15 : pT(leptons[1]) > 10

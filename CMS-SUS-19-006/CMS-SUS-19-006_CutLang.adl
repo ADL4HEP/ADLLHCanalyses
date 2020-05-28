@@ -82,7 +82,7 @@ object MHTLVobj
   take jetsmht
   select sum(jetsmht) == 1
 
-# define HT = sum(pT(jets))
+define HT = fHT(jets)
 define MHTLV = MHTLVobj[0]
 define MHT = pT( MHTLV )
 
