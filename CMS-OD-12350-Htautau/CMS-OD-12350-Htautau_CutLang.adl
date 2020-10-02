@@ -1,5 +1,6 @@
 # CMS Open Data outreach analysis of H -> tau tau using CMS 2012 data and MC
 # Link to open data record: http://opendata.web.cern.ch/record/12350
+# Runs with CutLang: https://github.com/unelg/CutLang
 
 info analysis
   title "CMS Open Data Outreach analysis: Analysis of Higgs boson decays to two tau leptons using data and simulation of events at the CMS detector from 2012"
