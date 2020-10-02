@@ -1,0 +1,109 @@
+# CMS Open Data outreach analysis of H -> tau tau using CMS 2012 data and MC
+# Link to open data record: http://opendata.web.cern.ch/record/12350
+
+info analysis
+  title "CMS Open Data Outreach analysis: Analysis of Higgs boson decays to two tau leptons using data and simulation of events at the CMS detector from 2012"
+  experiment CMS
+  id "Open Data record: 12350"
+  publication "J. High Energy Phys. 05 (2014) 104"
+  sqrtS 7 # TeV, 8.TeV"
+  lumi 4.9 # fb-1
+  arXiv "1401.5041"
+  hepdata "https://www.hepdata.net/record/ins1749379"
+  doi "10.1007/JHEP05(2014)104"
+
+# OBJECT SELECTIONS
+
+object goodMuons
+  take Muon
+  select abs(Eta(Muon)) < 2.1
+  select pt(Muon) > 17
+  select tightId(Muon) == 1.0
+
+object goodTaus
+  take Tau
+  select q(Tau) != 0
+  select abs(eta(Tau)) < 2.3
+  select pt(Tau) > 20
+  select idDecayMode(Tau) == 1
+  select idIsoTight(Tau) == 1
+  select idAntiEleTight(Tau) == 1
+  select idAntiMuTight(Tau) == 1
+
+object goodJets
+  take Jet
+  select puId(Jet) == 1
+  select abs(eta(Jet)) < 4.7
+  select pt(Jet) > 10
+
+object HMuTaus : comb( goodMuons[-1] goodTaus[-2] ) alias aHMuTaus
+  select { goodMuons[-1], goodTaus[-2] }dR > 0.2
+  select max(pT(goodMuons)) - pT(goodMuons[-1]) ~= 0
+  select min(relIsoall(goodTaus)) - relIsoall(goodTaus[-2]) ~= 0
+
+# EVENT VARIABLES
+
+define bestMu = daughters(HMuTaus[0], goodMuons[-1])
+define bestTau = daughters(HMuTaus[0],  goodTaus[-2])
+define mutau = HMuTaus[0]
+define mmutau = m(mutau)
+define pTmutau = pT(mutau)
+define dRmutau = dR(bestMu, bestTau)
+define MTtau = Sqrt( 2*pT(bestTau) * MET*(1-cos(phi(METLV[0]) - phi(bestTau) )))
+define MTmu = Sqrt( 2*pT(bestMu) * MET*(1-cos(phi(METLV[0]) - phi(bestMu) )))
+define jj = goodJets[0] + goodJets[1]
+define mjj = m(jj)
+define pTjj = pT(jj)
+define detajj = dEta(goodJets[0], goodJets[1])
+define wxseclumival = 19.6 / 476963.0 * 11.467 * 1000.0
+
+# EVENT SELECTIONS
+
+region baseline
+  select ALL
+  weight wxseclumi wxseclumival
+  select HLT_IsoMu17_eta2p1_LooseIsoPFTau20 == 1
+  select size(goodMuons) > 0
+  select size(goodTaus) > 0
+  select size(HMuTaus) > 0
+  # Histograms in the baseline region:
+  histo hmutaum , "muon pT (GeV)", 30, 20, 140, mmutau
+  histo hmutaupt , "muon pT (GeV)", 30, 0, 60, pTmutau
+  histo hmupt , "muon pT (GeV)", 30, 17, 70, pT(bestMu)
+  histo htaupt , "tau pT (GeV)", 30, 17, 70, pT(bestTau)
+  histo hmueta , "muon eta", 30, -2.1, 2.1, eta(bestMu)
+  histo htaueta , "tau eta", 30, -2.3, 2.3, eta(bestTau)
+  histo hmuphi , "muon phi", 30, -3.14, 3.14, eta(bestMu)
+  histo htauphi , "tau phi", 30, -3.14, 3.14, eta(bestTau)
+  histo hmuiso , "muon iso", 30, -3.14, 3.14, pfRelIso03all(bestMu)
+  histo htauiso , "tau iso", 30, -3.14, 3.14, relIsoall(bestTau)
+  histo hmuq , "muon charge", 2, -2, 2, q(bestMu)
+  histo htauq , "tau charge", 2, -2, 2, q(bestTau)
+  histo hmet, "MET (GeV)", 30, 0, 60, MET
+  histo hmetphi, "MET phi", 30, -3.14, 3.14, phi(METLV[0])
+  histo hmumass , "muon mass (GeV)", 30, 0.0, 0.2, m(bestMu)
+  histo htaumass , "tau mass (GeV)", 30, 0.0, 2.0, m(bestTau)
+  histo hmuMT , "muon mass (GeV)", 30, 0.0, 100, MTmu
+  histo htauMT , "tau mass (GeV)", 30, 0.0, 100, MTtau
+  histo htaudecaymode , "tau decay mode", 11, 0, 11, decayMode(bestTau) 
+
+region twojets
+  baseline
+  select size(goodJets) >= 2
+  # histograms in the twojets region
+  histo hj1pt , "jet1 pT (GeV)", 30, 30, 70, pT(goodJets[0])
+  histo hj2pt , "jet1 pT (GeV)", 30, 30, 70, pT(goodJets[1])
+  histo hj1eta , "jet1 eta", 30, -4.7, 4.7, eta(goodJets[0])
+  histo hj2eta , "jet2 eta", 30, -4.7, 4.7, eta(goodJets[1])
+  histo hj1phi , "jet1 phi", 30, -3.14, 3.14, phi(goodJets[0])
+  histo hj2phi , "jet2 phi", 30, -3.14, 3.14, phi(goodJets[1])
+  histo hj1m , "jet1 mass (GeV)", 30, 30, 70, m(goodJets[0])
+  histo hj2m , "jet2 mass (GeV)", 30, 30, 70, m(goodJets[1])
+  histo hj1btag , "jet1 btag", 30, 0, 1, bTag(goodJets[0])
+  histo hj2btag , "jet2 btag", 30, 0, 1, bTag(goodJets[1])
+  histo hnjets , "number of jets", 5, 0, 5, size(goodJets)
+  histo hmjj , "jj inv. mass (GeV)", 30, 0, 400, mjj
+  histo hptjj , "jj pT (GeV)", 30, 0, 200, pTjj
+  histo hjdeta , "deta j1, j2", 30, -9.4, 9.4, detajj
+
+
