@@ -39,7 +39,7 @@ object goodJets
   select pt(Jet) > 10
 
 object HMuTaus : comb( goodMuons[-1] goodTaus[-2] ) alias aHMuTaus
-  select { goodMuons[-1], goodTaus[-2] }dR > 0.5
+  select dR( goodMuons[-1], goodTaus[-2] ) > 0.5
   select max(pT(goodMuons)) - pT(goodMuons[-1]) ~= 0
   select min(relIsoall(goodTaus)) - relIsoall(goodTaus[-2]) ~= 0
 
