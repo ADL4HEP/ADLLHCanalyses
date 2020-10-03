@@ -1,5 +1,6 @@
 # CMS Open Data outreach analysis of H -> tau tau using CMS 2012 data and MC
 # Link to open data record: http://opendata.web.cern.ch/record/12350
+# Can be used with the reduced NanoAOD ntuples listed in the open data record, e.g. http://opendata.cern.ch/record/12351
 # Runs with CutLang: https://github.com/unelg/CutLang
 
 info analysis
