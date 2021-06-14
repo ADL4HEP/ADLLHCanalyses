@@ -1,0 +1,766 @@
+#info analysis
+#  title " Search for supersymmetry in proton-proton collisions at 13 TeV in final states with jets and missing transverse momentum"
+#  experiment CMS
+#  id SUS-19-006
+#  publication JHEP 10 (2019) 244
+#  sqrtS 13.0
+#  lumi 137
+#  arXiv 1908.04722  
+#  hepdata https://www.hepdata.net/record/ins1749379
+#  doi 10.1007/JHEP10(2019)244
+
+countsformat bgests
+  process lostlep, "Lost lepton background", stat, syst
+  process zinv, "Z --> vv background", stat, syst
+  process qcd, "QCD background", stat, syst
+
+countsformat results
+  process est, "Total estimated BG", stat, syst
+  process obs, "Observed data"
+
+table btagdeepCSVmedium
+  tabletype efficiency
+  nvars 1
+  errors true
+  # val    err-     err+     xmin     xmax
+  0.5790   0.0016   0.0016    -10.4     30.0
+  0.6314   0.0013   0.0013     30.0     35.0
+  0.6442   0.0011   0.0011     35.0     40.0
+  0.6596   0.0007   0.0007     40.0     50.0
+  0.6727   0.0007   0.0007     50.0     60.0
+  0.6812   0.0008   0.0008     60.0     70.0
+  0.6855   0.0008   0.0008     70.0     80.0
+  0.6873   0.0009   0.0009     80.0     90.0
+  0.6881   0.0010   0.0010     90.0    100.0
+  0.6880   0.0008   0.0008    100.0    125.0
+  0.6867   0.0011   0.0011    125.0    150.0
+  0.6826   0.0015   0.0015    150.0    175.0
+  0.6734   0.0020   0.0020    175.0    200.0
+  0.6624   0.0026   0.0026    200.0    225.0
+  0.6494   0.0034   0.0034    225.0    250.0
+  0.6419   0.0044   0.0044    250.0    275.0
+  0.6301   0.0054   0.0054    275.0    300.0
+  0.6202   0.0051   0.0051    300.0    350.0
+  0.6006   0.0073   0.0073    350.0    400.0
+  0.5889   0.0098   0.0098    400.0    450.0
+  0.5798   0.0126   0.0126    450.0    500.0
+  0.5547   0.0118   0.0118    500.0    600.0
+  0.5412   0.0172   0.0172    600.0    700.0
+  0.5197   0.0234   0.0234    700.0    800.0
+  0.4959   0.0243   0.0243    800.0   7000.0
+
+# OBJECT SELECTION
+
+object jets 
+  take Jet
+  select pT(Jet) > 30  
+  select abs(Eta(Jet)) < 2.4
+
+object jetsmht 
+  take Jet
+  select pT(Jet) > 30  
+  select abs(Eta(Jet)) < 5
+
+object bjets
+  take jets
+  select applyHM( btagdeepCSVmedium( Pt(Jet) ) == 1)
+  #select DeepCSV > 0.6324, 0.4941 # 2016, 2017+18. Eff = 55-70 for pT=20-400
+
+object vetomuons
+  take Muon
+  select pT(Muon) > 10
+  select abs(Eta(Muon)) < 2.4
+  select abs(d0(Muon)) < 2
+  # relative isolation
+
+object vetoelectrons
+  take Electron
+  select pT(Electron) > 10
+  select abs(eta(Electron)) < 2.4
+  select abs(d0(Electron)) < 2
+  # relative isolation
+
+object vetoleptons : Union(vetoelectrons, vetomuons)
+
+object vetophotons
+  take Photon
+  select pT(Photon) > 100
+  select abs(eta(Photon)) < 2.5
+
+object MHTLVobj
+  take jetsmht
+  select sum(jetsmht) == 1
+
+define HT = fHT(jets)
+define MHTLV = MHTLVobj[0]
+define MHT = pT( MHTLV )
+
+# preselection region
+region presel
+  select size(jets) >= 2
+  select HT > 300
+  select size(jetsmht) >= 0
+  select size(MHTLVobj) >= 0
+  select MHT > 300
+  select HT - MHT > 0
+  select size(vetomuons) == 0
+  select size(vetoelectrons) == 0
+  #select size(isotracks) == 0
+  select size(vetophotons) == 0
+  select dphi(jets[0], MHTLV) > 0.5
+  select dphi(jets[1], MHTLV) > 0.5
+  select size(jets) >= 3 ? dphi(jets[2], MHTLV) > 0.3 : ALL
+  select size(jets) >= 4 ? dphi(jets[3], MHTLV) > 0.3 : ALL
+
+region searchbins
+  presel
+  # Table 3, 1-10
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 2 3 and size(bjets) == 0
+  counts bgests 38870 +- 320 +- 580 , 89100 +- 200 +- 2600 , 1800 +- 1000 + 1200 - 800
+  counts results 129800 +- 1100 +- 2800 , 130718 
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 2 3 and size(bjets) == 0
+  counts bgests 2760 +- 61 +- 39 , 4970 +- 50 +- 150 , 330 +- 180 +- 160
+  counts results 8060 +- 200 +- 220 , 7820 
+  bin MHT [] 300 350 and HT >= 1200 and size(jets) [] 2 3 and size(bjets) == 0
+  counts bgests 181 +- 17 +- 3 , 308 +- 12 +- 18 , 62 +- 34 +- 27
+  counts results 552 +- 40 +- 32 , 514 
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 2 3 and size(bjets) == 0
+  counts bgests 26230 +- 240 +- 540 , 78000 +- 200 +- 2200 , 660 +- 360 +- 300
+  counts results 104900 +- 500 +- 2300 , 100828 
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 2 3 and size(bjets) == 0
+  counts bgests 5319 +- 81 +- 78 , 14570 +- 80 +- 430 , 210 +- 110 +- 100
+  counts results 20100 +- 160 +- 450 , 19319 
+  bin MHT [] 350 600 and HT >= 1200 and size(jets) [] 2 3 and size(bjets) == 0
+  counts bgests 279 +- 21 +- 6 , 689 +- 17 + 41 - 36 , 29 +- 16 +- 13
+  counts results 997 +- 32 +- 40 , 933 
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 2 3 and size(bjets) == 0
+  counts bgests 1220 +- 43 +- 25 , 6290 +- 50 +- 370 , 11.1 +- 6.0 + 5.4 - 5.1
+  counts results 7520 +- 70 +- 360 , 6786 
+  bin MHT [] 600 850 and HT >= 1200 and size(jets) [] 2 3 and size(bjets) == 0
+  counts bgests 52 +- 9 +- 2 , 240 +- 11 +- 15 , 0.73 +- 0.65 + 0.31 - 0.07
+  counts results 293 +- 14 +- 16 , 277 
+  bin MHT >= 850 and HT [] 850 1700 and size(jets) [] 2 3 and size(bjets) == 0
+  counts bgests 116 +- 14 +- 3 , 1088 +- 23 +- 98 , 0.35 +- 0.21 +- 0.15
+  counts results 1205 +- 28 +- 98 , 933 
+  bin MHT >= 850 and HT >= 1700 and size(jets) [] 2 3 and size(bjets) == 0
+  counts bgests 1.8 + 4.1 - 1.5 +- 0.1 , 48.9 + 5.3 - 4.8 +- 0.5 , 0.02 +- 0.02 + 0.01 - 0.00
+  counts results 50.7 + 6.7 - 5.0 +- 5.1 , 50 
+  # Table 3, 11-20
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 2 3 and size(bjets) == 1
+  counts bgests 5590 +- 100 +- 100 , 9800 +- 20 +- 1500 , 360 +- 200 + 330 - 160
+  counts results 15800 +- 200 +- 1500 , 15272 
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 2 3 and size(bjets) == 1
+  counts bgests 436 +- 25 +- 6 , 616 +- 6 +- 95 , 99 +- 54 + 79 - 45
+  counts results 1150 +- 60 +- 110 , 1177 
+  bin MHT [] 300 350 and HT >= 1200 and size(jets) [] 2 3 and size(bjets) == 1
+  counts bgests 27.4 + 7.9 - 6.3 +- 0.4 , 38.4 +- 1.5 +- 6.1 , 18 +- 10 + 14 - 8
+  counts results 84 +- 13 + 15 - 10 , 71 
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 2 3 and size(bjets) == 1
+  counts bgests 3237 +- 75 +- 99 , 8600 +- 20 +- 1300 , 124 +- 67 + 96 - 57
+  counts results 11900 +- 100 +- 1300 , 11121 
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 2 3 and size(bjets) == 1
+  counts bgests 757 +- 32 +- 14 , 1780 +- 10 +- 270 , 48 +- 27 + 38 - 21
+  counts results 2590 +- 40 +- 270 , 2530 
+  bin MHT [] 350 600 and HT >= 1200 and size(jets) [] 2 3 and size(bjets) == 1
+  counts bgests 36.7 + 8.9 - 7.3 +- 0.5 , 86 +- 2 +- 14 , 9.1 +- 5.0 + 6.9 - 4.1
+  counts results 132 +- 10 +- 15 , 127 
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 2 3 and size(bjets) == 1
+  counts bgests 162 +- 17 +- 4 , 710 +- 10 +- 120 , 2.3 +- 1.3 + 1.8 - 1.0
+  counts results 880 +- 20 +- 110 , 728 
+  bin MHT [] 600 850 and HT >= 1200 and size(jets) [] 2 3 and size(bjets) == 1
+  counts bgests 2.7 + 3.5 - 1.7 +- 0.1 , 29.5 +- 1.3 +- 4.8 , 0.12 +- 0.10 + 0.09 - 0.02
+  counts results 32.3 + 3.8 - 2.1 +- 4.8 , 31 
+  bin MHT >= 850 and HT [] 850 1700 and size(jets) [] 2 3 and size(bjets) == 1
+  counts bgests 8.7 + 5.2 - 3.5 +- 0.2 , 124 +- 3 +- 22 , 0.10 +- 0.07 + 0.07 - 0.02
+  counts results 133 +- 5 +- 22 , 112 
+  bin MHT >= 850 and HT >= 1700 and size(jets) [] 2 3 and size(bjets) == 1
+  counts bgests 0.0 + 3.6 - 0.0 +- 0.0 , 6.0 +- 0.7 +- 1.1 , 0.03 + 0.04 + 0.02 - 0.03 - 0.00
+  counts results 6.0 + 3.6 - 0.6 +- 1.1 , 5 
+  # Table 3, 21-30
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 2 3 and size(bjets) >= 2 
+  counts bgests 706 +- 37 +- 13 , 940 +- 2 +- 290 , 66 + 68 + 72 - 66 -  0
+  counts results 1710 +- 80 +- 290 , 1787 
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 2 3 and size(bjets) >= 2 
+  counts bgests 96 +- 13 +- 1 , 71 +- 1 +- 22 , 19 +- 11 + 19 - 8
+  counts results 186 +- 18 + 29 - 23 , 148 
+  bin MHT [] 300 350 and HT >= 1200 and size(jets) [] 2 3 and size(bjets) >= 2 
+  counts bgests 3.5 + 4.7 - 2.3 +- 0.1 , 4.4 +- 0.2 +- 1.4 , 2.2 +- 1.3 + 2.1 - 0.9
+  counts results 10.2 + 4.8 + 2.5 - 2.6 - 1.7 , 11 
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 2 3 and size(bjets) >= 2 
+  counts bgests 362 +- 27 +- 14 , 810 +- 2 +- 250 , 13 +- 8 + 13 - 5
+  counts results 1190 +- 30 +- 250 , 1159 
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 2 3 and size(bjets) >= 2 
+  counts bgests 166 +- 18 +- 5 , 201 +- 1 +- 61 , 5.1 +- 3.3 + 5.1 - 1.8
+  counts results 373 +- 18 +- 62 , 322 
+  bin MHT [] 350 600 and HT >= 1200 and size(jets) [] 2 3 and size(bjets) >= 2 
+  counts bgests 6.0 + 4.8 - 2.9 +- 0.1 , 9.9 +- 0.2 +- 3.1 , 1.5 +- 0.9 + 1.5 - 0.6
+  counts results 17.5 + 4.9 + 3.4 - 3.1 - 3.1 , 13 
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 2 3 and size(bjets) >= 2 
+  counts bgests 17.5 + 7.6 - 5.6 +- 0.3 , 72 +- 1 +- 22 , 0.09 +- 0.09 + 0.09 - 0.00
+  counts results 89 +- 7 +- 22 , 50 
+  bin MHT [] 600 850 and HT >= 1200 and size(jets) [] 2 3 and size(bjets) >= 2 
+  counts bgests 0.0 + 2.9 - 0.0 +- 0.0 , 3.4 +- 0.1 +- 1.0 , 0.08 +- 0.08 + 0.07 - 0.00
+  counts results 3.4 + 2.9 - 0.2 +- 1.0 , 4 
+  bin MHT >= 850 and HT [] 850 1700 and size(jets) [] 2 3 and size(bjets) >= 2 
+  counts bgests 0.0 + 4.4 - 0.0 +- 0.0 , 12.5 +- 0.3 +- 4.0 , 0.09 +- 0.07 + 0.09 - 0.02
+  counts results 12.6 + 4.5 - 0.3 +- 4.0 , 9 
+  bin MHT >= 850 and HT >= 1700 and size(jets) [] 2 3 and size(bjets) >= 2 
+  counts bgests 0.0 + 3.7 - 0.0 +- 0.0 , 0.68 +- 0.07 +- 0.22 , 0.04 +- 0.04 + 0.03 - 0.00
+  counts results 0.7 + 3.7 - 0.1 +- 0.2 , 0 
+  # Table 4, 31-40
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 4 5 and size(bjets) == 0
+  counts bgests 8720 +- 110 +- 120 , 13930 +- 70 +- 590 , 630 +- 350 + 410 - 290
+  counts results 23280 +- 370 + 740 - 660 , 23241 
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) == 0
+  counts bgests 2990 +- 48 +- 54 , 3960 +- 40 +- 150 , 490 +- 260 +- 230
+  counts results 7440 +- 270 +- 280 , 7277 
+  bin MHT [] 300 350 and HT >= 1200 and size(jets) [] 4 5 and size(bjets) == 0
+  counts bgests 216 +- 14 +- 5 , 317 +- 12 +- 18 , 230 +- 120 +- 100
+  counts results 760 +- 120 +- 100 , 726 
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 4 5 and size(bjets) == 0
+  counts bgests 5230 +- 90 +- 160 , 11410 +- 70 +- 450 , 180 +- 100 +- 80
+  counts results 16820 +- 150 +- 490 , 16720 
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) == 0
+  counts bgests 4654 +- 59 +- 68 , 9000 +- 60 +- 350 , 210 +- 110 +- 100
+  counts results 13870 +- 140 +- 370 , 13837 
+  bin MHT [] 350 600 and HT >= 1200 and size(jets) [] 4 5 and size(bjets) == 0
+  counts bgests 364 +- 17 +- 6 , 680 +- 17 +- 37 , 104 +- 56 +- 45
+  counts results 1148 +- 61 +- 59 , 1141 
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) == 0
+  counts bgests 428 +- 19 +- 9 , 1592 +- 25 +- 94 , 5.1 +- 2.8 +- 2.3
+  counts results 2025 +- 32 +- 94 , 2028 
+  bin MHT [] 600 850 and HT >= 1200 and size(jets) [] 4 5 and size(bjets) == 0
+  counts bgests 72.2 + 8.1 - 7.3 +- 1.1 , 225 +- 10 +- 14 , 1.9 +- 1.1 +- 0.8
+  counts results 299 +- 13 +- 14 , 291 
+  bin MHT >= 850 and HT [] 850 1700 and size(jets) [] 4 5 and size(bjets) == 0
+  counts bgests 42.4 +- 6.9 +- 0.8 , 351 +- 13 +- 32 , 0.13 +- 0.09 +- 0.5
+  counts results 393 +- 15 +- 32 , 360 
+  bin MHT >= 850 and HT >= 1700 and size(jets) [] 4 5 and size(bjets) == 0
+  counts bgests 6.1 + 3.3 - 2.3 +- 0.1 , 38.4 +- 4.2 +- 4.4 , 0.06 +- 0.05 + 0.02 - 0.01
+  counts results 44.6 + 5.5 - 4.6 +- 4.4 , 51 
+  # Table 4, 41-50
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 4 5 and size(bjets) == 1
+  counts bgests 4217 +- 69 +- 77 , 2850 +- 15 +- 450 , 220 +- 120 + 200 - 100
+  counts results 7290 +- 140 +- 480 , 7157 
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) == 1
+  counts bgests 1389 +- 35 +- 23 , 850 +- 10 +- 130 , 260 +- 140 + 210 - 120
+  counts results 2500 +- 150 + 250 - 180 , 2387 
+  bin MHT [] 300 350 and HT >= 1200 and size(jets) [] 4 5 and size(bjets) == 1
+  counts bgests 93 +- 10 +- 3 , 69 +- 3 +- 11 , 93 +- 50 + 71 - 43
+  counts results 255 +- 51 + 72 - 44 , 229 
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 4 5 and size(bjets) == 1
+  counts bgests 2068 +- 50 +- 41 , 2330 +- 10 +- 370 , 64 +- 35 + 49 - 29
+  counts results 4460 +- 60 +- 370 , 4317 
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) == 1
+  counts bgests 1777 +- 40 +- 29 , 1910 +- 10 +- 300 , 92 +- 50 + 73 - 42
+  counts results 3780 +- 70 +- 300 , 3822 
+  bin MHT [] 350 600 and HT >= 1200 and size(jets) [] 4 5 and size(bjets) == 1
+  counts bgests 112 +- 11 +- 3 , 148 +- 4 +- 24 , 45 +- 24 + 34 - 21
+  counts results 305 +- 27 + 42 - 32 , 350 
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) == 1
+  counts bgests 107 +- 11 +- 3 , 332 +- 5 +- 54 , 1.8 +- 1.1 + 1.5 - 0.8
+  counts results 441 +- 12 +- 54 , 388 
+  bin MHT [] 600 850 and HT >= 1200 and size(jets) [] 4 5 and size(bjets) == 1
+  counts bgests 23.1 + 5.5 - 4.6 +- 0.4 , 48.6 +- 2.2 +- 8.0 , 0.78 +- 0.51 + 0.59 - 0.27
+  counts results 72.5 +- 5.5 +- 8.1 , 74 
+  bin MHT >= 850 and HT [] 850 1700 and size(jets) [] 4 5 and size(bjets) == 1
+  counts bgests 9.4 + 4.0 - 3.0 +- 0.3 , 73 +- 3 +- 13 , 0.12 +- 0.09 + 0.09 - 0.03
+  counts results 82 +- 5 +- 13 , 73 
+  bin MHT >= 850 and HT >= 1700 and size(jets) [] 4 5 and size(bjets) == 1
+  counts bgests 1.0 + 2.3 - 0.8 +- 0.0 , 8.3 +- 1.0 +- 1.6 , 0.03 + 0.04 + 0.02 - 0.03 - 0.00
+  counts results 9.4 + 2.5 - 1.2 +- 1.6 , 14 
+  # Table 4, 51-60
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 4 5 and size(bjets) == 2
+  counts bgests 1806 +- 49 +- 30 , 468 +- 2 +- 79 , 68 +- 45 + 74 - 24
+  counts results 2340 +- 70 + 110 - 90 , 2505 
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) == 2
+  counts bgests 687 +- 26 +- 10 , 144 +- 1 +- 24 , 71 +- 39 + 70 - 32
+  counts results 902 +- 47 + 75 - 41 , 864 
+  bin MHT [] 300 350 and HT >= 1200 and size(jets) [] 4 5 and size(bjets) == 2
+  counts bgests 34.0 + 7.4 - 6.2 +- 0.7 , 12.0 +- 0.4 +- 2.1 , 24 +- 13 + 23 - 11
+  counts results 70 +- 14 + 23 - 11 , 72 
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 4 5 and size(bjets) == 2
+  counts bgests 820 +- 35 +- 20 , 381 +- 2 +- 64 , 17 +- 10 + 17 - 7
+  counts results 1218 +- 36 +- 68 , 1208 
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) == 2
+  counts bgests 794 +- 29 +- 12 , 324 +- 2 +- 54 , 23 +- 13 + 23 - 10
+  counts results 1141 +- 32 +- 58 , 1180 
+  bin MHT [] 350 600 and HT >= 1200 and size(jets) [] 4 5 and size(bjets) == 2
+  counts bgests 47.8 + 8.2 + 1.1 - 7.2 - 1.1 , 25.6 + 0.6 + 4.4 - 0.6 - 4.4 , 12 +  7 + 12 -  7 -  5
+  counts results 85 + 11 + 12 - 10 -  7 , 78 
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) == 2
+  counts bgests 37.1 + 8.0 - 6.7 +- 0.7 , 55.5 +- 0.9 +- 9.6 , 0.45 +- 0.30 + 0.45 - 0.16
+  counts results 93.1 + 8.0 - 6.8 +- 9.7 , 98 
+  bin MHT [] 600 850 and HT >= 1200 and size(jets) [] 4 5 and size(bjets) == 2
+  counts bgests 8.8 + 5.3 - 3.5 +- 0.1 , 8.4 +- 0.4 +- 1.5 , 0.20 +- 0.18 + 0.19 - 0.02
+  counts results 17.4 + 5.3 - 3.6 +- 1.5 , 15 
+  bin MHT >= 850 and HT [] 850 1700 and size(jets) [] 4 5 and size(bjets) == 2
+  counts bgests 1.2 + 2.8 - 1.0 +- 0.0 , 12.0 +- 0.4 +- 2.2 , 0.09 +- 0.07 + 0.09 - 0.02
+  counts results 13.3 + 2.8 - 1.1 +- 2.2 , 15 
+  bin MHT >= 850 and HT >= 1700 and size(jets) [] 4 5 and size(bjets) == 2
+  counts bgests 0.0 + 2.6 - 0.0 +- 0.0 , 1.44 +- 0.16 +- 0.28 , 0.04 +- 0.04 + 0.03 - 0.00
+  counts results 1.5 + 2.6 - 0.1 +- 0.3 , 1 
+  # Table 4, 51-60
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 4 5 and size(bjets) >= 3 
+  counts bgests 147 +- 15 +- 2 , 40 +- 0 +- 14 , 4.4 +- 4.2 + 6.1 - 0.2
+  counts results 192 +- 15 +- 15 , 222 
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) >= 3 
+  counts bgests 76.7 +- 9.0 +- 1.3 , 13.5 +- 0.1 +- 4.8 ,  9 +- 6 + 12 - 3
+  counts results 99 +- 10 + 13 - 6 , 92 
+  bin MHT [] 300 350 and HT >= 1200 and size(jets) [] 4 5 and size(bjets) >= 3 
+  counts bgests 5.8 + 3.9 - 2.5 +- 0.1 , 1.14 +- 0.04 +- 0.41 , 3.7 +- 2.2 + 4.7 - 1.5
+  counts results 10.6 + 4.5 + 4.7 - 3.3 - 1.5 , 5 
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 4 5 and size(bjets) >= 3 
+  counts bgests 73 +- 11 +- 1 , 33 +- 0 +- 12 , 1.2 +- 1.1 + 1.6 - 0.1
+  counts results 107 +- 11 +- 12 , 111 
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) >= 3 
+  counts bgests 92 + 11 +  2 - 10 -  2 , 30 +  0 + 11 -  0 - 11 , 3.2 + 2.0 + 4.2 - 2.0 - 1.2
+  counts results 125 + 11 + 12 - 10 - 11 , 138 
+  bin MHT [] 350 600 and HT >= 1200 and size(jets) [] 4 5 and size(bjets) >= 3 
+  counts bgests 5.0 + 3.4 - 2.2 +- 0.1 , 2.45 +- 0.06 +- 0.87 , 1.8 +- 1.2 + 2.3 - 0.6
+  counts results 9.3 + 3.6 + 2.5 - 2.5 - 1.1 , 5 
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 4 5 and size(bjets) >= 3 
+  counts bgests 1.3 + 2.9 - 1.1 +- 0.0 , 4.9 +- 0.1 +- 1.8 , 0.10 + 0.12 + 0.13 - 0.10 - 0.00
+  counts results 6.3 + 2.9 - 1.1 +- 1.8 , 5 
+  bin MHT [] 600 850 and HT >= 1200 and size(jets) [] 4 5 and size(bjets) >= 3 
+  counts bgests 0.0 + 2.6 - 0.0 +- 0.0 , 0.79 +- 0.04 +- 0.28 , 0.10 + 0.12 + 0.13 - 0.10 - 0.00
+  counts results 0.9 + 2.6 - 0.1 +- 0.3 , 0 
+  bin MHT >= 850 and HT [] 850 1700 and size(jets) [] 4 5 and size(bjets) >= 3 
+  counts bgests 0.0 + 3.2 - 0.0 +- 0.0 , 1.05 +- 0.04 +- 0.38 , 0.10 +- 0.09 + 0.13 - 0.02
+  counts results 1.2 + 3.2 - 0.1 +- 0.4 , 1 
+  bin MHT >= 850 and HT >= 1700 and size(jets) [] 4 5 and size(bjets) >= 3 
+  counts bgests 0.0 + 2.3 - 0.0 +- 0.0 , 0.13 +- 0.01 +- 0.05 , 0.04 + 0.05 + 0.05 - 0.04 - 0.00
+  counts results 0.2 + 2.3 - 0.0 +- 0.1 , 0 
+  # Table 4, 61-70
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 6 7 and size(bjets) == 0
+  counts bgests 686 +- 29 +- 11 , 761 +- 17 +- 63 , 144 +- 83 + 92 - 61
+  counts results 1590 +- 90 + 110 - 90 , 1480 
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) == 0
+  counts bgests 967 +- 25 +- 14 , 873 +- 18 +- 65 , 280 +- 140 +- 130
+  counts results 2110 +- 140 +- 150 , 1993 
+  bin MHT [] 300 350 and HT >= 1200 and size(jets) [] 6 7 and size(bjets) == 0
+  counts bgests 121.5 +- 8.8 +- 2.8 , 116.8 +- 7.3 +- 9.2 , 172 +- 86 +- 74
+  counts results 410 +- 87 +- 75 , 362 
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 6 7 and size(bjets) == 0
+  counts bgests 353 +- 21 +- 8 , 514 +- 14 +- 40 , 33 +- 20 +- 14
+  counts results 901 +- 32 +- 44 , 847 
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) == 0
+  counts bgests 1219 +- 28 +- 28 , 1540 +- 20 +- 110 , 130 +- 65 +- 63
+  counts results 2890 +- 80 +- 130 , 2842 
+  bin MHT [] 350 600 and HT >= 1200 and size(jets) [] 6 7 and size(bjets) == 0
+  counts bgests 208 +- 11 +- 4 , 258 +- 11 +- 18 , 81 +- 40 +- 35
+  counts results 547 +- 43 +- 39 , 553 
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) == 0
+  counts bgests 76.1 + 1.0 - 1.0 +- 1.0 , 182 +- 8 +- 15 , 1.70 +- 0.88 +- 0.81
+  counts results 259 +- 11 +- 15 , 245 
+  bin MHT [] 600 850 and HT >= 1200 and size(jets) [] 6 7 and size(bjets) == 0
+  counts bgests 29.7 +- 4.2 +- 0.5 , 72.8 +- 5.6 +- 5.7 , 2.3 +- 1.2 +- 1.0
+  counts results 104.8 + 7.4 - 6.7 +- 5.8 , 122 
+  bin MHT >= 850 and HT [] 850 1700 and size(jets) [] 6 7 and size(bjets) == 0
+  counts bgests 18.5 +- 3.5 +- 0.3 , 35.2 +- 3.6 +- 3.8 , 0.10 +- 0.07 + 0.04 - 0.02
+  counts results 53.8 + 5.4 - 4.7 +- 3.9 , 55 
+  bin MHT >= 850 and HT >= 1700 and size(jets) [] 6 7 and size(bjets) == 0
+  counts bgests 4.3 + 2.0 - 1.4 +- 0.2 , 12.7 +- 2.3 +- 1.9 , 0.05 +- 0.04 + 0.02 - 0.01
+  counts results 17.0 + 3.2 - 2.6 +- 1.9 , 20 
+  # Table 5, 81-90
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 6 7 and size(bjets) == 1
+  counts bgests 675 +- 25 +- 12 , 248 +- 6 +- 45 , 42 +- 22 + 27 - 20
+  counts results 965 +- 34 +- 53 , 946 
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) == 1
+  counts bgests 950 +- 26 +- 15 , 289 +- 6 +- 52 , 115 +- 58 +- 55
+  counts results 1355 +- 63 +- 77 , 1282 
+  bin MHT [] 300 350 and HT >= 1200 and size(jets) [] 6 7 and size(bjets) == 1
+  counts bgests 105.6 + 9.1 - 8.4 +- 2.7 , 39.3 +- 2.5 +- 7.1 , 57 +- 28 +- 24
+  counts results 201 +- 30 +- 26 , 197 
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 6 7 and size(bjets) == 1
+  counts bgests 252 +- 16 +- 5 , 168 +- 5 +- 30 , 9.5 +- 5.0 +- 4.3
+  counts results 429 +- 18 +- 31 , 425 
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) == 1
+  counts bgests 1050 +- 28 +- 19 , 510 +- 8 +- 91 , 53 +- 27 +- 26
+  counts results 1614 +- 39 +- 96 , 1521 
+  bin MHT [] 350 600 and HT >= 1200 and size(jets) [] 6 7 and size(bjets) == 1
+  counts bgests 155 +- 11 +- 4 , 86 +- 4 +- 15 , 26 +- 13 +- 11
+  counts results 268 +- 17 +- 20 , 269 
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) == 1
+  counts bgests 34.7 + 5.4 - 4.8 +- 0.6 , 60 +- 3 +- 11 , 0.69 +- 0.41 + 0.33 - 0.28
+  counts results 95 +- 6 +- 11 , 90 
+  bin MHT [] 600 850 and HT >= 1200 and size(jets) [] 6 7 and size(bjets) == 1
+  counts bgests 25.9 +- 4.3 +- 0.4 , 24.4 +- 1.9 +- 4.4 , 0.59 +- 0.34 +- 0.25
+  counts results 50.9 + 5.1 - 4.4 +- 4.4 , 49 
+  bin MHT >= 850 and HT [] 850 1700 and size(jets) [] 6 7 and size(bjets) == 1
+  counts bgests 7.9 + 2.9 - 2.2 +- 0.1 , 11.5 +- 1.1 +- 2.3 , 0.05 +- 0.04 + 0.02 - 0.00
+  counts results 19.4 + 3.2 - 2.5 +- 2.3 , 17 
+  bin MHT >= 850 and HT >= 1700 and size(jets) [] 6 7 and size(bjets) == 1
+  counts bgests 1.5 + 2.0 - 1.0 +- 0.0 , 4.29 + 0.85 - 0.72 +- 0.95 , 0.04 + 0.05 + 0.02 - 0.04 - 0.00
+  counts results 5.9 + 2.2 - 1.2 +- 0.9 , 7 
+  # Table 5, 91-100
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 6 7 and size(bjets) == 2
+  counts bgests 376 +- 19 +- 8 , 64 +- 2 +- 13 , 9.8 +- 5.5 + 6.3 - 4.2
+  counts results 450 +- 20 +- 16 , 450 
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) == 2
+  counts bgests 693 +- 23 +- 10 , 76 +- 2 +- 15 , 34 +- 17 +- 16
+  counts results 803 +- 28 +- 25 , 797 
+  bin MHT [] 300 350 and HT >= 1200 and size(jets) [] 6 7 and size(bjets) == 2
+  counts bgests 46.7 + 6.4 - 5.7 +- 0.7 , 10.5 +- 0.7 +- 2.1 , 18.7 +- 9.4 +- 8.1
+  counts results 76 +- 11 +- 8 , 84 
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 6 7 and size(bjets) == 2
+  counts bgests 120 +- 12 +- 2 , 43.6 +- 1.2 +- 8.9 , 2.1 +- 1.2 +- 0.9
+  counts results 165 +- 12 +- 9 , 188 
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) == 2
+  counts bgests 661 +- 23 +- 11 , 134 +- 2 +- 27 , 14.6 +- 7.5 +- 7.0
+  counts results 809 +- 24 +- 30 , 762 
+  bin MHT [] 350 600 and HT >= 1200 and size(jets) [] 6 7 and size(bjets) == 2
+  counts bgests 66.6 +- 7.3 +- 2.2 , 22.8 +- 0.9 +- 4.6 , 7.5 +- 3.8 +- 3.2
+  counts results 96.9 +- 8.3 +- 6.0 , 106 
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) == 2
+  counts bgests 19.3 + 4.7 - 3.9 +- 0.3 , 15.7 +- 0.7 +- 3.2 , 0.15 +- 0.10 +- 0.06
+  counts results 35.2 +- 4.3 +- 3.2 , 32 
+  bin MHT [] 600 850 and HT >= 1200 and size(jets) [] 6 7 and size(bjets) == 2
+  counts bgests 8.0 + 3.2 - 2.4 +- 0.2 , 6.5 +- 0.5 +- 1.3 , 0.09 +- 0.07 + 0.04 - 0.01
+  counts results 14.5 + 3.3 - 2.4 +- 1.3 , 14 
+  bin MHT >= 850 and HT [] 850 1700 and size(jets) [] 6 7 and size(bjets) == 2
+  counts bgests 1.8 + 1.7 - 1.0 +- 0.0 , 2.98 +- 0.30 +- 0.65 , 0.05 +- 0.04 + 0.02 - 0.01
+  counts results 4.8 + 1.8 - 1.0 +- 0.7 , 9 
+  bin MHT >= 850 and HT >= 1700 and size(jets) [] 6 7 and size(bjets) == 2
+  counts bgests 0.5 + 1.2 - 0.4 +- 0.0 , 1.15 + 0.23 - 0.19 +- 0.28 , 0.02 +- 0.02 + 0.01 - 0.00
+  counts results 1.7 + 1.2 - 0.5 +- 0.3 , 1 
+  # Table 5, 101-110
+  bin MHT [] 300 350 and HT [] 300 600 and size(jets) [] 6 7 and size(bjets) >= 3 
+  counts bgests 67.8 + 8.8 - 7.9 +- 1.6 , 8.8 +- 0.2 +- 3.7 , 1.4 +- 1.0 + 0.9 - 0.4
+  counts results 78.0 +- 8.5 +- 4.0 , 86 
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) >= 3 
+  counts bgests 136 +- 11 +- 2 , 10.5 +- 0.2 +- 4.3 , 7.4 +- 4.2 + 3.6 - 3.2
+  counts results 154 +- 11 +- 6 , 167 
+  bin MHT [] 300 350 and HT >= 1200 and size(jets) [] 6 7 and size(bjets) >= 3 
+  counts bgests 15.7 + 4.1 - 3.4 +- 0.2 , 1.44 +- 0.09 +- 0.59 , 3.9 +- 2.2 +- 1.7
+  counts results 21.1 +- 4.3 +- 1.8 , 16 
+  bin MHT [] 350 600 and HT [] 350 600 and size(jets) [] 6 7 and size(bjets) >= 3 
+  counts bgests 20.6 + 5.3 - 4.3 +- 0.5 , 6.0 +- 0.2 +- 2.5 , 0.68 +- 0.62 + 0.31 - 0.07
+  counts results 27.2 + 5.4 - 4.4 +- 2.5 , 28 
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) >= 3 
+  counts bgests 137 +- 11 +- 4 , 18.5 +- 0.3 +- 7.6 , 2.8 +- 1.6 +- 1.3
+  counts results 158 +- 11 +- 9 , 115 
+  bin MHT [] 350 600 and HT >= 1200 and size(jets) [] 6 7 and size(bjets) >= 3 
+  counts bgests 15.4 + 4.4 - 3.5 +- 0.6 , 3.1 +- 0.1 +- 1.3 , 1.7 +- 1.0 + 0.8 - 0.7
+  counts results 20.2 + 4.5 - 3.7 +- 1.6 , 23 
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 6 7 and size(bjets) >= 3 
+  counts bgests 4.1 + 2.5 - 1.7 +- 0.0 , 2.16 +- 0.10 +- 0.89 , 0.05 + 0.06 + 0.02 - 0.05 - 0.00
+  counts results 6.3 + 2.5 - 1.7 +- 0.9 , 6 
+  bin MHT [] 600 850 and HT >= 1200 and size(jets) [] 6 7 and size(bjets) >= 3 
+  counts bgests 2.1 + 2.0 - 1.1 +- 0.0 , 0.89 +- 0.07 +- 0.37 , 0.07 +- 0.06 + 0.03 - 0.01
+  counts results 3.0 + 2.0 - 1.1 +- 0.4 , 2 
+  bin MHT >= 850 and HT [] 850 1700 and size(jets) [] 6 7 and size(bjets) >= 3 
+  counts bgests 0.0 + 1.2 - 0.0 +- 0.0 , 0.41 +- 0.04 +- 0.17 , 0.05 +- 0.04 + 0.02 - 0.01
+  counts results 0.5 + 1.2 - 0.1 +- 0.2 , 1 
+  bin MHT >= 850 and HT >= 1700 and size(jets) [] 6 7 and size(bjets) >= 3 
+  counts bgests 0.0 + 1.9 - 0.0 +- 0.0 , 0.16 +- 0.03 +- 0.07 , 0.02 +- 0.02 + 0.01 - 0.00
+  counts results 0.2 + 1.9 - 0.0 +- 0.1 , 1 
+  # Table 6, 111-118
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) == 0
+  counts bgests 139.5 +- 9.5 +- 1.9 , 60.0 +- 4.6 +- 9.7 , 58 +- 29 +- 28
+  counts results 258 +- 31 +- 30 , 245 
+  bin MHT [] 300 350 and HT >= 1200 and size(jets) [] 8 9 and size(bjets) == 0
+  counts bgests 31.0 +- 4.3 +- 1.1 , 25.1 +- 3.5 +- 2.7 , 57 +- 28 +- 24
+  counts results 113 +- 29 +- 25 , 88 
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) == 0
+  counts bgests 136.1 +- 9.3 +- 1.7 , 123 +- 7 +- 14 , 30 +- 15 +- 14
+  counts results 289 +- 19 +- 20 , 280 
+  bin MHT [] 350 600 and HT >= 1200 and size(jets) [] 8 9 and size(bjets) == 0
+  counts bgests 49.9 +- 5.3 +- 0.9 , 52.2 +- 4.8 +- 5.4 , 27 +- 14 +- 12
+  counts results 129 +- 16 +- 13 , 104 
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) == 0
+  counts bgests 6.6 + 2.3 - 1.8 +- 0.2 , 13.9 +- 2.4 +- 1.5 , 0.37 +- 0.21 +- 0.17
+  counts results 20.9 + 3.5 - 2.9 +- 1.5 , 28 
+  bin MHT [] 600 850 and HT >= 1200 and size(jets) [] 8 9 and size(bjets) == 0
+  counts bgests 6.1 + 2.1 - 1.6 +- 0.1 , 12.9 +- 2.4 +- 1.6 , 0.79 +- 0.44 +- 0.34
+  counts results 19.7 +- 3.0 +- 1.6 , 22 
+  bin MHT >= 850 and HT [] 850 1700 and size(jets) [] 8 9 and size(bjets) == 0
+  counts bgests 1.1 + 1.1 - 0.6 +- 0.0 , 4.1 + 1.5 - 1.2 +- 0.6 , 0.06 +- 0.04 + 0.03 - 0.02
+  counts results 5.3 + 1.9 - 1.3 +- 0.6 , 2 
+  bin MHT >= 850 and HT >= 1700 and size(jets) [] 8 9 and size(bjets) == 0
+  counts bgests 1.5 + 1.2 - 0.7 +- 0.1 , 2.2 + 1.3 - 0.9 +- 0.3 , 0.02 +- 0.02 + 0.01 - 0.00
+  counts results 3.7 + 1.8 - 1.1 +- 0.3 , 1 
+  # Table 6, 119-126
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) == 1
+  counts bgests 183 +- 11 +- 3 , 37 +- 3 +- 11 , 27 +- 13 +- 13
+  counts results 247 +- 18 +- 17 , 229 
+  bin MHT [] 300 350 and HT >= 1200 and size(jets) [] 8 9 and size(bjets) == 1
+  counts bgests 43.8 +- 5.3 +- 0.7 , 13.8 +- 1.9 +- 3.8 , 24 +- 12 +- 10
+  counts results 82 +- 13 +- 11 , 68 
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) == 1
+  counts bgests 176 +- 11 +- 3 , 75 +- 4 +- 21 , 10.9 +- 5.5 +- 5.3
+  counts results 262 +- 13 +- 22 , 224 
+  bin MHT [] 350 600 and HT >= 1200 and size(jets) [] 8 9 and size(bjets) == 1
+  counts bgests 68.4 +- 6.5 +- 1.2 , 29.5 +-  2.7 +- 8.1 , 9.8 +- 5.0 +- 4.2
+  counts results 107.8 +- 8.5 +- 9.3 , 90 
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) == 1
+  counts bgests 3.4 + 2.0 - 1.4 +- 0.2 , 8.7 +- 1.5 +- 2.4 , 0.10 +- 0.08 + 0.05 - 0.02
+  counts results 12.2 +- 2.3 +- 2.4 , 7 
+  bin MHT [] 600 850 and HT >= 1200 and size(jets) [] 8 9 and size(bjets) == 1
+  counts bgests 8.3 + 2.8 - 2.1 +- 0.1 , 8.1 +- 1.5 +- 2.3 , 0.31 +- 0.18 +- 0.12
+  counts results 16.7 + 3.2 - 2.6 +- 2.3 , 15 
+  bin MHT >= 850 and HT [] 850 1700 and size(jets) [] 8 9 and size(bjets) == 1
+  counts bgests 0.0 + 1.2 - 0.0 +- 0.0 , 2.08 + 0.79 - 0.59 +- 0.61 , 0.05 +- 0.04 + 0.02 - 0.01
+  counts results 2.1 + 1.5 - 0.6 +- 0.6 , 2 
+  bin MHT >= 850 and HT >= 1700 and size(jets) [] 8 9 and size(bjets) == 1
+  counts bgests 1.0 + 1.3 - 0.7 +- 0.0 , 1.35 + 0.81 - 0.54 +- 0.40 , 0.02 +- 0.02 + 0.01 - 0.00
+  counts results 2.4 + 1.5 - 0.8 +- 0.4 , 2 
+  # Table 6, 127-134
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) == 2
+  counts bgests 169 +- 11 +- 4 , 11.0 +- 0.9 +- 4.1 , 9.5 +- 4.9 +- 4.6
+  counts results 190 +- 12 +- 7 , 193 
+  bin MHT [] 300 350 and HT >= 1200 and size(jets) [] 8 9 and size(bjets) == 2
+  counts bgests 28.9 +- 4.4 +- 0.5 , 5.5 +- 0.8 +- 1.9 , 10.1 +- 5.1 +- 4.4
+  counts results 44.6 +- 6.8 +- 4.8 , 53 
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) == 2
+  counts bgests 146 +- 10 +- 2 , 23.1 +- 1.3 +- 8.1 , 4.5 +- 2.4 +- 2.1
+  counts results 174 +- 11 +- 9 , 158 
+  bin MHT [] 350 600 and HT >= 1200 and size(jets) [] 8 9 and size(bjets) == 2
+  counts bgests 42.9 +- 5.3 +- 0.9 , 11.0 +- 1.1 +- 3.9 , 4.1 +- 2.1 +- 1.8
+  counts results 58.0 + 6.1 - 5.5 +- 4.4 , 74 
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) == 2
+  counts bgests 3.6 + 2.4 - 1.6 +- 0.2 , 2.52 +- 0.44 +- 0.89 , 0.09 +- 0.08 + 0.04 - 0.01
+  counts results 6.2 + 2.5 - 1.6 +- 0.9 , 7 
+  bin MHT [] 600 850 and HT >= 1200 and size(jets) [] 8 9 and size(bjets) == 2
+  counts bgests 8.0 + 2.9 - 2.2 +- 0.3 , 2.30 +- 0.42 +- 0.82 , 0.08 + 0.09 + 0.04 - 0.08 - 0.00
+  counts results 10.4 + 3.0 - 2.3 +- 0.9 , 9 
+  bin MHT >= 850 and HT [] 850 1700 and size(jets) [] 8 9 and size(bjets) == 2
+  counts bgests 0.7 + 1.6 - 0.6 +- 0.0 , 0.96 + 0.37 - 0.27 +- 0.35 , 0.05 +- 0.04 + 0.02 - 0.01
+  counts results 1.7 + 1.6 - 0.7 +- 0.3 , 0 
+  bin MHT >= 850 and HT >= 1700 and size(jets) [] 8 9 and size(bjets) == 2
+  counts bgests 2.5 + 3.3 - 1.7 +- 0.1 , 0.40 + 0.24 - 0.16 +- 0.15 , 0.02 +- 0.02 + 0.01 - 0.00
+  counts results 2.9 + 3.4 - 1.7 +- 0.2 , 2 
+  # Table 7, 135-142
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) >= 3 
+  counts bgests 46.8 + 6.1 - 5.5 +- 0.7 , 3.8 +- 0.3 +- 2.3 , 3.7 +- 2.6 + 1.8 - 1.2
+  counts results 54.3 +- 6.3 +- 2.9 , 57 
+  bin MHT [] 300 350 and HT >= 1200 and size(jets) [] 8 9 and size(bjets) >= 3 
+  counts bgests 17.3 + 4.0 - 3.3 +- 0.5 , 1.26 +- 0.17 +- 0.76 , 3.6 +- 2.0 +- 1.5
+  counts results 22.2 + 4.4 - 3.8 +- 1.8 , 17 
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) >= 3 
+  counts bgests 44.4 +- 5.6 +- 1.0 , 7.5 +- 0.4 +- 4.6 , 1.31 +- 0.81 + 0.63 - 0.51
+  counts results 53.2 +- 5.7 +- 4.7 , 36 
+  bin MHT [] 350 600 and HT >= 1200 and size(jets) [] 8 9 and size(bjets) >= 3 
+  counts bgests 15.2 + 3.6 - 2.9 +- 0.3 , 2.8 +- 0.3 +- 1.7 , 1.17 +- 0.68 +- 0.50
+  counts results 19.2 +- 3.3 +- 1.8 , 23 
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) [] 8 9 and size(bjets) >= 3 
+  counts bgests 0.0 + 1.7 + 0.0 - 0.0 - 0.0 , 0.88 + 0.16 + 0.54 - 0.14 - 0.53 , 0.04 + 0.04 + 0.02 - 0.04 - 0.00
+  counts results 0.9 + 1.7 + 0.5 - 0.1 - 0.5 , 2 
+  bin MHT [] 600 850 and HT >= 1200 and size(jets) [] 8 9 and size(bjets) >= 3 
+  counts bgests 2.7 + 2.2 - 1.3 +- 0.1 , 0.83 +- 0.15 +- 0.51 , 0.05 +- 0.05 + 0.02 - 0.00
+  counts results 3.6 + 2.2 - 1.3 +- 0.5 , 2 
+  bin MHT >= 850 and HT [] 850 1700 and size(jets) [] 8 9 and size(bjets) >= 3 
+  counts bgests 0.8 + 2.0 - 0.7 +- 0.0 , 0.18 + 0.07 - 0.05 +- 0.11 , 0.05 +- 0.04 + 0.02 - 0.01
+  counts results 1.1 + 2.0 - 0.7 +- 0.1 , 0 
+  bin MHT >= 850 and HT >= 1700 and size(jets) [] 8 9 and size(bjets) >= 3 
+  counts bgests 0.0 + 1.8 - 0.0 +- 0.0 , 0.14 + 0.08 - 0.05 +- 0.08 , 0.02 +- 0.02 + 0.01 - 0.00
+  counts results 0.2 + 1.8 - 0.1 +- 0.1 , 0 
+  # Table 7, 143-150
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) == 0
+  counts bgests 5.7 + 2.2 - 1.7 +- 0.3 , 2.9 + 1.3 + 0.6 - 1.0 - 0.5 , 7.8 +- 4.5 + 3.7 - 3.3
+  counts results 16.4 +- 5.0 + 3.8 - 3.3 , 17 
+  bin MHT [] 300 350 and HT >= 1200 and size(jets) >= 10 and size(bjets) == 0
+  counts bgests 5.7 + 2.5 - 1.8 +- 0.2 , 2.5 + 1.5 - 1.0 +- 0.3 , 12.6 +- 6.3 +- 5.4
+  counts results 20.8 + 7.0 - 6.7 +- 5.4 , 20 
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) == 0
+  counts bgests 6.0 + 2.4 - 1.8 +- 0.1 , 4.2 + 1.6 - 1.2 +- 0.6 , 3.3 +- 1.8 +- 1.5
+  counts results 13.6 + 3.4 - 2.8 +- 1.6 , 12 
+  bin MHT [] 350 600 and HT >= 1200 and size(jets) >= 10 and size(bjets) == 0
+  counts bgests 10.7 + 2.9 - 2.3 +- 0.2 , 6.5 + 2.1 - 1.6 +- 0.9 , 6.0 +- 3.1 +- 2.6
+  counts results 23.2 + 4.7 - 4.2 +- 2.8 , 21 
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) == 0
+  counts bgests 0.19 + 0.44 - 0.17 +- 0.00 , 0.36 + 0.84 - 0.30 +- 0.05 , 0.07 +- 0.07 + 0.03 - 0.00
+  counts results 0.63 + 0.95 - 0.35 +- 0.05 , 2 
+  bin MHT [] 600 850 and HT >= 1200 and size(jets) >= 10 and size(bjets) == 0
+  counts bgests 2.0 + 1.6 - 1.0 +- 0.0 , 1.5 + 1.2 - 0.7 +- 0.2 , 0.15 +- 0.13 + 0.06 - 0.02
+  counts results 3.6 + 2.0 - 1.2 +- 0.2 , 6 
+  bin MHT >= 850 and HT [] 850 1700 and size(jets) >= 10 and size(bjets) == 0
+  counts bgests 0.0 + 2.3 - 0.0 +- 0.0 , 0.00 + 0.64 - 0.00 +- 0.00 , 0.05 +- 0.04 + 0.02 - 0.01
+  counts results 0.0 + 2.4 - 0.0 +- 0.0 , 0 
+  bin MHT >= 850 and HT >= 1700 and size(jets) >= 10 and size(bjets) == 0
+  counts bgests 0.00 + 0.91 - 0.00 +- 0.00 , 0.42 + 0.96 - 0.35 +- 0.07 , 0.02 +- 0.02 + 0.01 - 0.00
+  counts results 0.4 + 1.3 - 0.3 +- 0.1 , 2 
+  # Table 7, 151-158
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) == 1
+  counts bgests 15.2 + 3.3 - 2.8 +- 0.2 , 1.24 + 0.56 - 0.40 +- 0.90 , 4.0 +- 2.1 +- 1.9
+  counts results 20.4 + 4.0 - 3.5 +- 2.1 , 22 
+  bin MHT [] 300 350 and HT >= 1200 and size(jets) >= 10 and size(bjets) == 1
+  counts bgests 11.2 + 3.2 - 2.6 +- 0.4 , 1.05 + 0.63 - 0.42 +- 0.76 , 6.9 +- 3.5 +- 3.0
+  counts results 19.2 + 4.8 - 4.4 +- 3.1 , 18 
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) == 1
+  counts bgests 13.8 + 3.3 - 2.7 +- 0.3 , 1.8 + 0.7 - 0.5 +- 1.3 , 1.53 +- 0.85 + 0.74 - 0.68
+  counts results 17.1 + 3.5 - 2.9 +- 1.5 , 9 
+  bin MHT [] 350 600 and HT >= 1200 and size(jets) >= 10 and size(bjets) == 1
+  counts bgests 16.2 + 3.4 - 2.9 +- 0.4 , 2.7 + 0.9 - 0.7 +- 2.0 , 2.6 +- 1.3 +- 1.1
+  counts results 21.5 + 3.8 - 3.2 +- 2.3 , 32 
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) == 1
+  counts bgests 0.0 + 3.6 - 0.0 +- 0.0 , 0.15 + 0.35 + 0.11 - 0.13 - 0.09 , 0.04 +- 0.04 + 0.02 - 0.00
+  counts results 0.2 + 3.6 - 0.1 +- 0.1 , 0 
+  bin MHT [] 600 850 and HT >= 1200 and size(jets) >= 10 and size(bjets) == 1
+  counts bgests 1.3 + 1.3 - 0.7 +- 0.0 , 0.61 + 0.49 - 0.29 +- 0.44 , 0.06 +- 0.05 + 0.03 - 0.01
+  counts results 2.0 + 1.4 + 0.5 - 0.8 - 0.4 , 3 
+  bin MHT >= 850 and HT [] 850 1700 and size(jets) >= 10 and size(bjets) == 1
+  counts bgests 0.0 + 3.2 - 0.0 +- 0.0 , 0.00 + 0.27 - 0.00 +- 0.00 , 0.05 +- 0.04 + 0.02 - 0.01
+  counts results 0.0 + 3.2 - 0.0 +- 0.0 , 0 
+  bin MHT >= 850 and HT >= 1700 and size(jets) >= 10 and size(bjets) == 1
+  counts bgests 0.7 + 1.5 - 0.6 +- 0.0 , 0.18 + 0.41 + 0.13 - 0.15 - 0.10 , 0.03 + 0.04 + 0.01 - 0.03 - 0.00
+  counts results 0.9 + 1.6 - 0.6 +- 0.1 , 1 
+  # Table 7, 159-166
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) == 2
+  counts bgests 13.1 + 3.2 - 2.6 +- 0.3 , 0.38 + 0.18 + 0.42 - 0.13 - 0.36 , 2.1 +- 1.5 + 1.0 - 0.6
+  counts results 15.5 + 3.5 + 1.1 - 3.0 - 0.8 , 15 
+  bin MHT [] 300 350 and HT >= 1200 and size(jets) >= 10 and size(bjets) == 2
+  counts bgests 10.8 + 3.0 - 2.4 +- 0.4 , 0.33 + 0.19 + 0.36 - 0.13 - 0.30 , 3.3 +- 1.7 +- 1.4
+  counts results 14.4 + 3.5 - 3.0 +- 1.5 , 11 
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) == 2
+  counts bgests 18.2 + 3.8 - 3.2 +- 0.3 , 0.55 + 0.21 + 0.60 - 0.16 - 0.53 , 0.77 +- 0.52 + 0.37 - 0.26
+  counts results 19.5 +- 3.5 +- 0.7 , 11 
+  bin MHT [] 350 600 and HT >= 1200 and size(jets) >= 10 and size(bjets) == 2
+  counts bgests 13.7 + 3.2 - 2.6 +- 0.3 , 0.85 + 0.27 + 0.92 - 0.21 - 0.82 , 1.15 +- 0.66 +- 0.50
+  counts results 15.7 + 3.3 - 2.7 +- 1.0 , 12 
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) == 2
+  counts bgests 1.6 + 2.2 - 1.2 +- 0.0 , 0.05 + 0.11 + 0.05 - 0.04 - 0.03 , 0.04 +- 0.04 + 0.02 - 0.00
+  counts results 1.7 + 2.2 + 0.1 - 1.2 - 0.0 , 0 
+  bin MHT [] 600 850 and HT >= 1200 and size(jets) >= 10 and size(bjets) == 2
+  counts bgests 0.9 + 1.2 - 0.6 +- 0.0 , 0.19 + 0.15 + 0.21 - 0.09 - 0.17 , 0.06 +- 0.05 + 0.03 - 0.01
+  counts results 1.2 + 1.2 - 0.6 +- 0.2 , 0 
+  bin MHT >= 850 and HT [] 850 1700 and size(jets) >= 10 and size(bjets) == 2
+  counts bgests 0.0 + 2.4 - 0.0 +- 0.0 , 0.00 + 0.08 - 0.00 +- 0.00 , 0.05 +- 0.04 + 0.02 - 0.01
+  counts results 0.0 + 2.4 - 0.0 +- 0.0 , 0 
+  bin MHT >= 850 and HT >= 1700 and size(jets) >= 10 and size(bjets) == 2
+  counts bgests 0.0 + 1.5 - 0.0 +- 0.0 , 0.05 + 0.13 + 0.06 - 0.04 - 0.03 , 0.02 +- 0.02 + 0.01 - 0.00
+  counts results 0.1 + 1.5 + 0.1 - 0.0 - 0.0 , 0 
+  # Table 7, 167-174
+  bin MHT [] 300 350 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) >= 3 
+  counts bgests 6.4 + 2.4 - 1.8 +- 0.1 , 0.36 + 0.17 + 0.41 - 0.12 - 0.34 , 0.46 +- 0.32 + 0.22 - 0.14
+  counts results 7.2 + 2.4 - 1.8 +- 0.4 , 13 
+  bin MHT [] 300 350 and HT >= 1200 and size(jets) >= 10 and size(bjets) >= 3 
+  counts bgests 3.8 + 2.1 - 1.4 +- 0.1 , 0.31 + 0.19 + 0.35 - 0.12 - 0.28 , 1.50 +- 0.87 +- 0.64
+  counts results 5.6 + 2.3 - 1.7 +- 0.7 , 5 
+  bin MHT [] 350 600 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) >= 3 
+  counts bgests 1.6 + 1.5 - 0.9 +- 0.0 , 0.52 + 0.20 + 0.59 - 0.15 - 0.50 , 0.11 + 0.12 + 0.05 - 0.11 - 0.00
+  counts results 2.2 + 1.6 + 0.6 - 0.9 - 0.5 , 3 
+  bin MHT [] 350 600 and HT >= 1200 and size(jets) >= 10 and size(bjets) >= 3 
+  counts bgests 4.2 + 2.1 - 1.4 +- 0.1 , 0.81 + 0.26 + 0.90 - 0.20 - 0.78 , 0.71 +- 0.44 + 0.31 - 0.27
+  counts results 5.7 + 2.1 + 0.9 - 1.5 - 0.8 , 9 
+  bin MHT [] 600 850 and HT [] 600 1200 and size(jets) >= 10 and size(bjets) >= 3 
+  counts bgests 0.0 + 3.0 - 0.0 +- 0.0 , 0.05 + 0.10 + 0.05 - 0.04 - 0.03 , 0.04 +- 0.04 + 0.02 - 0.00
+  counts results 0.1 + 3.0 + 0.1 - 0.1 - 0.0 , 0 
+  bin MHT [] 600 850 and HT >= 1200 and size(jets) >= 10 and size(bjets) >= 3 
+  counts bgests 0.0 + 1.4 - 0.0 +- 0.0 , 0.18 + 0.14 + 0.20 - 0.09 - 0.16 , 0.04 +- 0.04 + 0.02 - 0.00
+  counts results 0.2 + 1.4 - 0.1 +- 0.2 , 1 
+  bin MHT >= 850 and HT [] 850 1700 and size(jets) >= 10 and size(bjets) >= 3 
+  counts bgests 0.0 + 2.0 - 0.0 +- 0.0 , 0.00 + 0.08 - 0.00 +- 0.00 , 0.05 +- 0.04 + 0.02 - 0.01
+  counts results 0.0 + 2.0 - 0.0 +- 0.0 , 0 
+  bin MHT >= 850 and HT >= 1700 and size(jets) >= 10 and size(bjets) >= 3 
+  counts bgests 0.0 + 1.3 - 0.0 +- 0.0 , 0.05 + 0.12 + 0.06 - 0.04 - 0.03 , 0.02 +- 0.02 + 0.01 - 0.00
+  counts results 0.1 + 1.3 + 0.1 - 0.0 - 0.0 , 0 
+
+# Aggregate search regions as shown in Table 9
+region ASR1
+  presel
+  select MHT >= 600
+  select HT >= 600
+  select size(jets) >= 2
+  select size(bjets) == 0
+  counts bgests 2087 +- 51 +- 28 , 10210 +- 70 +- 440 , 25.0 +- 7.0 +- 9.8
+  counts results 12320 +- 80 +- 450 , 11281
+
+region ASR2
+  presel
+  select MHT >= 850
+  select HT >= 1700
+  select size(jets) >= 4
+  select size(bjets) == 0
+  counts bgests 11.9 + 4.1 - 2.8 +- 0.2 , 53.7 +- 5.0 +- 4.8 , 0.15 +- 0.07 +- 0.04
+  counts results 65.8 + 6.7 - 5.4 +- 4.9 , 74
+
+region ASR3
+  presel
+  select MHT >= 600
+  select HT >= 600
+  select size(jets) >= 6
+  select size(bjets) == 0
+  counts bgests 146 +- 10 +- 2 , 338 +- 12 +- 18 , 5.7 +- 1.6 +- 2.1
+  counts results 489 +- 15 +- 18 , 505
+
+region ASR4
+  presel
+  select MHT >= 600
+  select HT >= 600
+  select size(jets) >= 8
+  select size(bjets) [] 0 1
+  counts bgests 17.6 + 4.6 - 2.8 +- 0.2 , 35.2 + 4.6 - 3.5 +- 2.5 , 1.51 +- 0.51 +- 0.56
+  counts results 54.3 + 6.5 - 4.5 +- 2.5 , 63
+
+region ASR5
+  presel
+  select MHT >= 850
+  select HT >= 1700
+  select size(jets) >= 10
+  select size(bjets) [] 0 1
+  counts bgests 17.9 + 7.8 - 3.5 +- 0.2 , 122.7 + 9.1 - 7.9 +- 8.8 , 0.33 +- 0.11 +- 0.10
+  counts results 141 + 12 - 9 +- 9 , 153
+
+region ASR6
+  presel
+  select MHT >= 300
+  select HT >= 300
+  select size(jets) >= 4
+  select size(bjets) >= 2
+  counts bgests 7630 +- 90 +- 99 , 2070 +- 10 +- 160 , 390 +- 70 +- 270
+  counts results 10090 +- 120 +- 330 , 10216
+
+region ASR7
+  presel
+  select MHT >= 600
+  select HT >= 600
+  select size(jets) >= 2
+  select size(bjets) >= 2
+  counts bgests 122 + 19 - 12 +- 2 , 211 +- 2 +- 26 , 2.6 +- 0.5 +- 1.6
+  counts results 336 + 19 - 12 +- 26 , 287
+
+region ASR8
+  presel
+  select MHT >= 350
+  select HT >= 350
+  select size(jets) >= 6
+  select size(bjets) >= 2
+  counts bgests 1362 +- 33 +- 17 , 314 +- 4 +- 41 , 45 +- 9 +- 16
+  counts results 1720 +- 35 +- 47 , 1637
+
+region ASR9
+  presel
+  select MHT >= 600
+  select HT >= 600
+  select size(jets) >= 4
+  select size(bjets) >= 2
+  counts bgests 105 + 16 - 10 +- 1 , 123 +- 2 +- 12 , 2.3 +- 0.5 +- 1.4
+  counts results 230 + 16 - 10 +- 12 , 224
+
+region ASR10
+  presel
+  select MHT >= 300
+  select HT >= 300
+  select size(jets) >= 8
+  select size(bjets) >= 3
+  counts bgests 143 + 12 -  9 +- 2 , 19.6 +- 0.7 +- 9.8 , 12.8 +- 3.5 +- 4.7
+  counts results 176 + 13 - 10 +- 11 , 168
+
+region ASR11
+  presel
+  select MHT >= 600
+  select HT >= 600
+  select size(jets) >= 6
+  select size(bjets) == 1
+  counts bgests 141 + 15 - 10 +- 2 , 160 +- 6 +- 16 , 3.2 +- 0.6 +- 1.1
+  counts results 304 + 16 - 11 +- 16 , 282
+
+region ASR12
+  presel
+  select MHT >= 850
+  select HT >= 850
+  select size(jets) >= 10
+  select size(bjets) >= 3
+  counts bgests 0.0 + 2.4 - 0.0 +- 0.0 , 0.05 + 0.14 + 0.06 - 0.04 - 0.01 , 0.07 +- 0.04 + 0.03 - 0.02
+  counts results 0.1 + 2.4 + 0.1 - 0.1 - 0.0 , 0
