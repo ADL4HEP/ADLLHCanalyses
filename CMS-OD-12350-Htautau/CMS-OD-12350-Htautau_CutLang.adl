@@ -1,5 +1,7 @@
 # CMS Open Data outreach analysis of H -> tau tau using CMS 2012 data and MC
 # Link to open data record: http://opendata.web.cern.ch/record/12350
+# Can be used with the reduced NanoAOD ntuples listed in the open data record, e.g. http://opendata.cern.ch/record/12351
+# Runs with CutLang: https://github.com/unelg/CutLang
 
 info analysis
   title "CMS Open Data Outreach analysis: Analysis of Higgs boson decays to two tau leptons using data and simulation of events at the CMS detector from 2012"
@@ -37,7 +39,7 @@ object goodJets
   select pt(Jet) > 10
 
 object HMuTaus : comb( goodMuons[-1] goodTaus[-2] ) alias aHMuTaus
-  select { goodMuons[-1], goodTaus[-2] }dR > 0.2
+  select dR( goodMuons[-1], goodTaus[-2] ) > 0.5
   select max(pT(goodMuons)) - pT(goodMuons[-1]) ~= 0
   select min(relIsoall(goodTaus)) - relIsoall(goodTaus[-2]) ~= 0
 
@@ -46,8 +48,6 @@ object HMuTaus : comb( goodMuons[-1] goodTaus[-2] ) alias aHMuTaus
 define bestMu = daughters(HMuTaus[0], goodMuons[-1])
 define bestTau = daughters(HMuTaus[0],  goodTaus[-2])
 define mutau = HMuTaus[0]
-define mmutau = m(mutau)
-define pTmutau = pT(mutau)
 define dRmutau = dR(bestMu, bestTau)
 define MTtau = Sqrt( 2*pT(bestTau) * MET*(1-cos(phi(METLV[0]) - phi(bestTau) )))
 define MTmu = Sqrt( 2*pT(bestMu) * MET*(1-cos(phi(METLV[0]) - phi(bestMu) )))
@@ -67,8 +67,8 @@ region baseline
   select size(goodTaus) > 0
   select size(HMuTaus) > 0
   # Histograms in the baseline region:
-  histo hmutaum , "muon pT (GeV)", 30, 20, 140, mmutau
-  histo hmutaupt , "muon pT (GeV)", 30, 0, 60, pTmutau
+  histo hmutaum , "mu+tau mass (GeV)", 30, 20, 140, m(mutau)
+  histo hmutaupt , "mu+tau pT (GeV)", 30, 0, 60, pT(mutau)
   histo hmupt , "muon pT (GeV)", 30, 17, 70, pT(bestMu)
   histo htaupt , "tau pT (GeV)", 30, 17, 70, pT(bestTau)
   histo hmueta , "muon eta", 30, -2.1, 2.1, eta(bestMu)
@@ -83,8 +83,8 @@ region baseline
   histo hmetphi, "MET phi", 30, -3.14, 3.14, phi(METLV[0])
   histo hmumass , "muon mass (GeV)", 30, 0.0, 0.2, m(bestMu)
   histo htaumass , "tau mass (GeV)", 30, 0.0, 2.0, m(bestTau)
-  histo hmuMT , "muon mass (GeV)", 30, 0.0, 100, MTmu
-  histo htauMT , "tau mass (GeV)", 30, 0.0, 100, MTtau
+  histo hmuMT , "muon+MET transverse mass (GeV)", 30, 0.0, 100, MTmu
+  histo htauMT , "tau+MET transverse mass (GeV)", 30, 0.0, 100, MTtau
   histo htaudecaymode , "tau decay mode", 11, 0, 11, decayMode(bestTau) 
 
 region twojets
