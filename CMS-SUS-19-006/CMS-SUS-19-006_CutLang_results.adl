@@ -89,7 +89,7 @@ object vetophotons
 
 object MHTLVobj
   take jetsmht
-  select sum(jetsmht) == 1
+  select sum(-jetsmht) > 0
 
 define HT = fHT(jets)
 define MHTLV = MHTLVobj[0]
@@ -102,7 +102,7 @@ region presel
   select size(jetsmht) >= 0
   select size(MHTLVobj) >= 0
   select MHT > 300
-  select HT - MHT > 0
+  select MHT / HT <= 1
   select size(vetomuons) == 0
   select size(vetoelectrons) == 0
   #select size(isotracks) == 0
