@@ -85,42 +85,42 @@ region zerob
   select size(bjets) == 0
 
 region zerobSR1
-  multib
+  zerob
   select size(jets) >= 5
   select LepT >= 650
   select dphilW > 0.5
   select HT >= 750
 
 region zerobSR2
-  multib
+  zerob
   select size(jets) >= 6
   select LepT >= 450
   select dphilW > 0.75
   select HT >= 500
 
 region zerobSR3
-  multib
+  zerob
   select size(jets) >= 6
   select LepT >= 650
   select dphilW > 0.5
   select HT >= 1000
 
 region zerobSR4
-  multib
+  zerob
   select size(jets) >= 7
   select LepT >= 450
   select dphilW > 0.75
   select HT >= 500
 
 region zerobSR5
-  multib
+  zerob
   select size(jets) >= 7
   select LepT >= 650
   select dphilW > 0.5
   select HT >= 500
 
 region zerobSR6
-  multib
+  zerob
   select size(jets) >= 8
   select LepT >= 250
   select dphilW > 1.0
