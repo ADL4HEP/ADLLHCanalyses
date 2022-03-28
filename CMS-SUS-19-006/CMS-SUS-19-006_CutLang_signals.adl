@@ -1,0 +1,319 @@
+#info analysis
+#  title " Search for supersymmetry in proton-proton collisions at 13 TeV in final states with jets and missing transverse momentum"
+#  experiment CMS
+#  id SUS-19-006
+#  publication JHEP 10 (2019) 244
+#  sqrtS 13.0
+#  lumi 137
+#  arXiv 1908.04722  
+#  hepdata https://www.hepdata.net/record/ins1749379
+#  doi 10.1007/JHEP10(2019)244
+
+countsformat sigone
+  process T1tttt1900200, "T1tttt 1900 200", stat
+  process T1bbbb1800200, "T1bbbb 1800 200", stat
+  process T1qqqq1300100, "T1qqqq 1300 100", stat
+  process T5qqqqVV1800100, "T5qqqqVV 1800 100", stat
+
+countsformat sigtwo
+  process T1tttt13001000, "T1tttt 1300 1000", stat
+  process T1bbbb13001100, "T1bbbb 1300 1100", stat
+  process T1qqqq12001000, "T1qqqq 1200 1000", stat
+  process T5qqqqVV14001100, "T5qqqqVV 1400 1100", stat
+
+countsformat sigthree
+  process T2tt950100, "T2tt 950 100", stat
+  process T2bb1000100, "T2bb 1000 100", stat
+  process T2qq1400200, "T2qq 1400 200", stat
+
+countsformat sigfour
+  process T2tt600400, "T2tt 600 400", stat
+  process T2bb600450, "T2bb 600 450", stat
+  process T2qq1000800, "T2qq 1000 800", stat
+
+table btagdeepCSVmedium
+  tabletype efficiency
+  nvars 1
+  errors true
+  # val    err-     err+     xmin     xmax
+  0.5790   0.0016   0.0016    -10.4     30.0
+  0.6314   0.0013   0.0013     30.0     35.0
+  0.6442   0.0011   0.0011     35.0     40.0
+  0.6596   0.0007   0.0007     40.0     50.0
+  0.6727   0.0007   0.0007     50.0     60.0
+  0.6812   0.0008   0.0008     60.0     70.0
+  0.6855   0.0008   0.0008     70.0     80.0
+  0.6873   0.0009   0.0009     80.0     90.0
+  0.6881   0.0010   0.0010     90.0    100.0
+  0.6880   0.0008   0.0008    100.0    125.0
+  0.6867   0.0011   0.0011    125.0    150.0
+  0.6826   0.0015   0.0015    150.0    175.0
+  0.6734   0.0020   0.0020    175.0    200.0
+  0.6624   0.0026   0.0026    200.0    225.0
+  0.6494   0.0034   0.0034    225.0    250.0
+  0.6419   0.0044   0.0044    250.0    275.0
+  0.6301   0.0054   0.0054    275.0    300.0
+  0.6202   0.0051   0.0051    300.0    350.0
+  0.6006   0.0073   0.0073    350.0    400.0
+  0.5889   0.0098   0.0098    400.0    450.0
+  0.5798   0.0126   0.0126    450.0    500.0
+  0.5547   0.0118   0.0118    500.0    600.0
+  0.5412   0.0172   0.0172    600.0    700.0
+  0.5197   0.0234   0.0234    700.0    800.0
+  0.4959   0.0243   0.0243    800.0   7000.0
+
+# OBJECT SELECTION
+
+object jets 
+  take Jet
+  select pT(Jet) > 30  
+  select abs(Eta(Jet)) < 2.4
+
+object jetsmht 
+  take Jet
+  select pT(Jet) > 30  
+  select abs(Eta(Jet)) < 5
+
+object bjets
+  take jets
+  select abs(flavor(jets)) == 5
+  select applyHM( btagdeepCSVmedium( Pt(jets) ) == 1)
+  #select DeepCSV > 0.6324, 0.4941 # 2016, 2017+18. Eff = 55-70 for pT=20-400
+
+object vetomuons
+  take Muon
+  select pT(Muon) > 10
+  select abs(Eta(Muon)) < 2.4
+  select abs(d0(Muon)) < 2
+  # relative isolation
+
+object vetoelectrons
+  take Electron
+  select pT(Electron) > 10
+  select abs(eta(Electron)) < 2.4
+  select abs(d0(Electron)) < 2
+  # relative isolation
+
+object vetoleptons : Union(vetoelectrons, vetomuons)
+
+object vetophotons
+  take Photon
+  select pT(Photon) > 100
+  select abs(eta(Photon)) < 2.5
+
+object MHTLVobj
+  take jetsmht
+  select sum(-jetsmht) > 0
+
+define HT = fHT(jets)
+define MHTLV = MHTLVobj[0]
+define MHT = pT( MHTLV )
+
+# preselection region
+region presel
+#  select ALL
+#  counts sigone 100.0 +- 0.8 , 100.0 +- 0.5 , 100.0 +- 0.0 , 100.0 +- 0.5
+#  counts sigtwo 100.0 +- 0.0 , 100.0 +- 0.1 , 100.0 +- 0.1 , 100.0 +- 0.1 
+#  counts sigthree 100.0 +- 0.2 , 100.0 +- 0.5 , 100.0 +- 0.5
+#  counts sigfour 100.0 +- 0.0 , 100.0 +- 0.1 , 100.0 +- 0.2
+  select size(jets) >= 2
+  counts sigone 100.0 +- 0.8 , 100.0 +- 0.5 , 100.0 +- 0.0 , 100.0 +- 0.5
+  counts sigtwo 100.0 +- 0.0 , 99.3 +- 0.1 , 99.6 +- 0.1 , 100.0 +- 0.1 
+  counts sigthree 99.9 +- 0.2 , 98.8 +- 0.5 , 99.1 +- 0.5
+  counts sigfour 99.6 +- 0.0 , 95.4 +- 0.1 , 97.8 +- 0.2
+  select HT > 300
+  counts sigone 100.0 +- 0.8 , 100.0 +- 0.5 , 100.0 +- 0.0 , 100.0 +- 0.5
+  counts sigtwo 90.1 +- 0.4 , 74.8 +- 0.5 , 82.0 +- 0.3 , 94.6 +- 0.4
+  counts sigthree 98.7 +- 0.4 , 98.3 +- 0.5 , 98.9 +- 0.6
+  counts sigfour 72.2 +- 0.3 , 58.2 +- 0.3 , 83.0 +- 0.4
+  select size(jetsmht) >= 0
+  counts sigone 100.0 +- 0.8 , 100.0 +- 0.5 , 100.0 +- 0.0 , 100.0 +- 0.5
+  counts sigtwo 90.1 +- 0.4 , 74.8 +- 0.5 , 82.0 +- 0.3 , 94.6 +- 0.4
+  counts sigthree 98.7 +- 0.4 , 98.3 +- 0.5 , 98.9 +- 0.6
+  counts sigfour 72.2 +- 0.3 , 58.2 +- 0.3 , 83.0 +- 0.4
+  select size(MHTLVobj) >= 0
+  counts sigone 100.0 +- 0.8 , 100.0 +- 0.5 , 100.0 +- 0.0 , 100.0 +- 0.5
+  counts sigtwo 90.1 +- 0.4 , 74.8 +- 0.5 , 82.0 +- 0.3 , 94.6 +- 0.4
+  counts sigthree 98.7 +- 0.4 , 98.3 +- 0.5 , 98.9 +- 0.6
+  counts sigfour 72.2 +- 0.3 , 58.2 +- 0.3 , 83.0 +- 0.4
+  select MHT > 300
+  counts sigone 85.5 +- 2.7 , 86.8 +- 1.9 , 77.1 +- 0.5 , 83.0 +- 2.1
+  counts sigtwo 13.8 +- 0.4 , 19.9 +- 0.5 , 21.2 +- 0.4 , 22.2 +- 0.7
+  counts sigthree 74.5 +- 1.2 , 79.6 +- 1.4 , 88.1 +- 1.4
+  counts sigfour 9.2 +- 0.2 , 13.6 +- 0.2 , 31.3 +- 0.5
+  select MHT / HT <= 1
+  counts sigone 85.5 +- 2.7 , 86.8 +- 1.9 , 77.0 +- 0.5 , 83.0 +- 2.1
+  counts sigtwo 13.8 +- 0.4 , 19.5 +- 0.5 , 20.9 +- 0.4 , 22.1 +- 0.7
+  counts sigthree 73.6 +- 1.3 , 78.2 +- 1.4 , 86.8 +- 1.5
+  counts sigfour 9.1 +- 0.2 , 13.2 +- 0.2 , 30.2 +- 0.5
+  select size(vetomuons) == 0
+  counts sigone 53.4 +- 3.6 , 86.0 +- 2.0 , 76.9 +- 0.5 , 68.6 +- 2.5
+  counts sigtwo 8.8 +- 0.3 , 19.2 +- 0.5 , 20.8 +- 0.4 , 18.5 +- 0.6
+  counts sigthree 58.7 +- 1.4 , 77.9 +- 1.4 , 86.7 +- 1.5
+  counts sigfour 7.0 +- 0.2 , 13.1 +- 0.2 , 30.1 +- 0.5
+  select size(vetoelectrons) == 0
+  counts sigone 34.2 +- 3.4 , 85.3 +- 2.0 , 76.5 +- 0.5 , 56.1 +- 2.7
+  counts sigtwo 5.8 +- 0.3 , 18.8 +- 0.5 , 20.7 +- 0.4 , 15.5 +- 0.6
+  counts sigthree 47.2 +- 1.4 , 77.5 +- 1.5 , 86.4 +- 1.5
+  counts sigfour 5.4 +- 0.1 , 13.0 +- 0.2 , 30.0 +- 0.5
+  #select size(isotracks) == 0
+  #counts signals 52.6 , 85.8
+  select size(vetophotons) == 0
+  counts sigone 30.3 +- 3.3 , 81.5 +- 2.1 , 72.5 +- 0.5 , 50.6 +- 2.7
+  counts sigtwo 4.9 +- 0.3 , 17.8 +- 0.5 , 19.5 +- 0.3 , 14.0 +- 0.6
+  counts sigthree 43.8 +- 1.4 , 75.2 +- 1.5 , 83.6 +- 1.6
+  counts sigfour 4.7 +- 0.1 , 12.5 +- 0.2 , 28.8 +- 0.5
+  select dphi(jets[0], MHTLV) > 0.5
+  counts sigone 29.5 +- 3.3 , 80.0 +- 2.2 , 71.2 +- 0.5 , 49.1 +- 2.7
+  counts sigtwo 4.9 +- 0.3 , 17.7 +- 0.5 , 19.5 +- 0.3 , 14.0 +- 0.6
+  counts sigthree 43.6 +- 1.4 , 75.1 +- 1.5 , 83.5 +- 1.6
+  counts sigfour 4.7 +- 0.1 , 12.5 +- 0.2 , 28.8 +- 0.5
+  select dphi(jets[1], MHTLV) > 0.5
+  counts sigone 26.5 +- 3.2 , 71.8 +- 2.4 , 64.5 +- 0.6 , 44.6 +- 2.7
+  counts sigtwo 4.1 +- 0.2 , 16.2 +- 0.4 , 17.9 +- 0.3 , 12.8 +- 0.6
+  counts sigthree 41.1 +- 1.4 , 70.6 +- 1.6 , 78.7 +- 1.7
+  counts sigfour 3.9 +- 0.1 , 11.3 +- 0.2 , 27.1 +- 0.5
+  select size(jets) >= 3 ? dphi(jets[2], MHTLV) > 0.3 : ALL
+  counts sigone 24.8 +- 3.2 , 66.6 +- 2.5 , 59.6 +- 0.6 , 41.6 +- 2.6
+  counts sigtwo 3.5 +- 0.2 , 15.1 +- 0.4 , 16.9 +- 0.3 , 12.0 +- 0.5
+  counts sigthree 39.8 +- 1.4 , 67.0 +- 1.6 , 74.4 +- 1.8
+  counts sigfour 3.4 +- 0.1 , 10.7 +- 0.2 , 26.0 +- 0.5
+  select size(jets) >= 4 ? dphi(jets[3], MHTLV) > 0.3 : ALL
+  counts sigone 23.1 +- 3.1 , 61.1 +- 2.6 , 54.9 +- 0.6 , 38.7 +- 2.6
+  counts sigtwo 3.1 +- 0.2 , 14.2 +- 0.4 , 15.9 +- 0.3 , 11.2 +- 0.5
+  counts sigthree 38.5 +- 1.4 , 64.5 +- 1.6 , 71.4 +- 1.9
+  counts sigfour 3.0 +- 0.1 , 10.2 +- 0.2 , 25.2 +- 0.5
+
+# Aggregate search regions as shown in Table 9
+region ASR1
+  presel
+  select MHT >= 600
+  select HT >= 600
+  select size(jets) >= 2
+  select size(bjets) == 0
+  counts sigone 1.43 +- 0.02 , 11.88 +- 0.15 , 121.16 +- 1.14 , 51.62 +- 0.5
+  counts sigtwo 2.86 +- 0.17 , 4.85 +- 0.19 , 193.14 +- 3.02 , 29.59 +- 1.10
+  counts sigthree 40.94 +-  0.50, 81.08 +- 0.94 , 285.27 +- 2.44
+  counts sigfour 7.51 +- 0.53 , 30.02 +- 0.66 , 188.65 +- 4.54
+
+region ASR2
+  presel
+  select MHT >= 850
+  select HT >= 1700
+  select size(jets) >= 4
+  select size(bjets) == 0
+  counts sigone 0.68 +- 0.02 , 4.95 +- 0.10 , 57.30 +- 0.78 , 19.93 +- 0.31
+  counts sigtwo 0.43 +- 0.07 , 0.32 +- 0.03 , 13.84 +- 0.76 , 2.90 +- 0.32
+  counts sigthree 1.56 +- 0.10 , 3.24 +- 0.19 , 35.93 +- 0.81
+  counts sigfour 0.32 +- 0.07 , 0.84 +- 0.09 , 10.10 +- 0.96
+
+region ASR3
+  presel
+  select MHT >= 600
+  select HT >= 600
+  select size(jets) >= 6
+  select size(bjets) == 0
+  counts sigone 1.30 +- 0.02 , 4.77 +- 0.08 , 60.23 +- 0.76 , 45.81 +- 0.47
+  counts sigtwo 2.73 +- 0.17 , 1.68 +- 0.08 , 111.28 +- 2.16 , 25.83 +- 1.00
+  counts sigthree 13.38 +- 0.23 , 7.38 +- 0.22 , 33.64 +- 0.72
+  counts sigfour 4.53 +- 0.36 , 6.00 +- 0.21 , 48.21 +- 1.99
+
+region ASR4
+  presel
+  select MHT >= 600
+  select HT >= 600
+  select size(jets) >= 8
+  select size(bjets) <= 1
+  counts sigone 5.12 +- 0.06 , 5.68 +- 0.12 , 21.90 +- 0.39 , 38.69 +- 0.38
+  counts sigtwo 8.58 +- 0.36 , 3.21 +- 0.15 , 46.10 +- 1.18 , 21.91 +- 0.79
+  counts sigthree 12.77 +- 0.27 , 3.38 +- 0.16 , 7.19 +- 0.28
+  counts sigfour 8.71 +- 0.54 , 4.93 +- 0.27 , 11.76 +- 0.77
+
+region ASR5
+  presel
+  select MHT >= 850
+  select HT >= 1700
+  select size(jets) >= 10
+  select size(bjets) >= 1
+  counts sigone 0.98 +- 0.02 , 0.43 +- 0.03 , 1.96 +- 0.10 , 4.77 +- 0.12
+  counts sigtwo 0.77 +- 0.09 , 0.10 +- 0.02 , 1.53 +- 0.19 , 1.24 +- 0.17
+  counts sigthree 0.28 +- 0.04 , 0.11 +- 0.03 , 0.40 +- 0.06
+  counts sigfour 0.23 +- 0.07 , 0.15 +- 0.05 , 0.34 +- 0.11
+
+region ASR6
+  presel
+  select MHT >= 300
+  select HT >= 300
+  select size(jets) >= 4
+  select size(bjets) >= 2
+  counts sigone 39.89 +- 0.26 , 143.99 +- 0.82 , 7.41 +- 0.11 , 15.94 +- 0.14
+  counts sigtwo 102.74 +- 1.45 , 589.39 +- 4.54 , 44.80 +- 0.54 , 28.72 +- 0.60
+  counts sigthree 181.57 +- 1.13 , 84.14 +- 0.85 , 5.17 +- 0.15
+  counts sigfour 254.99 +- 3.37 , 682.87 +- 4.09 , 23.23 +- 0.61
+
+region ASR7
+  presel
+  select MHT >= 600
+  select HT >= 600
+  select size(jets) >= 2
+  select size(bjets) >= 2
+  counts sigone 27.13 +- 0.21 , 100.49 +- 0.69 , 5.01 +- 0.09 , 9.87 +- 0.11
+  counts sigtwo 18.52 +- 0.61 , 105.43 +- 1.68 , 8.58 +- 0.24 , 4.34 +- 0.22
+  counts sigthree 87.22 +- 0.78 , 76.83 +- 0.81 , 4.55 +- 0.12
+  counts sigfour 19.85 +- 0.92 , 90.18 +- 1.49 , 4.57 +- 0.26
+
+region ASR8
+  presel
+  select MHT >= 350
+  select HT >= 350
+  select size(jets) >= 6
+  select size(bjets) >= 2
+  counts sigone 37.52 +- 0.25 , 79.30 +- 0.60 , 5.26 +- 0.10 , 14.43 +- 0.14
+  counts sigtwo 74.45 +- 1.23 , 236.98 +- 2.48 , 24.44 +- 0.41 , 18.77 +- 0.48
+  counts sigthree 96.21 +- 0.80 , 23.03 +- 0.43 , 2.38 +- 0.10
+  counts sigfour 130.96 +- 2.34 , 143.37 +- 1.69 , 8.68 +- 0.39
+
+region ASR9
+  presel
+  select MHT >= 600
+  select HT >= 600
+  select size(jets) >= 4
+  select size(bjets) >= 2
+  counts sigone 27.13 +- 0.21 , 97.83 +- 0.67 , 4.97 +- 0.09 , 9.86 +- 0.11
+  counts sigtwo 18.52 +- 0.61 , 102.58 +- 1.65 , 8.48 +- 0.24 , 4.34 +- 0.22
+  counts sigthree 81.86 +- 0.76 , 43.57 +- 0.60 , 3.72 +- 0.12
+  counts sigfour 19.67 +- 0.91 , 74.32 +- 1.31 , 4.23 +- 0.25
+
+region ASR10
+  presel
+  select MHT >= 300
+  select HT >= 300
+  select size(jets) >= 8
+  select size(bjets) >= 3
+  counts sigone 19.32 +- 0.20 , 12.97 +- 0.26 , 0.37 +- 0.02 , 2.09 +- 0.05
+  counts sigtwo 36.26 +- 0.89 , 51.73 +- 1.23 , 1.59 +- 0.08 , 3.05 +- 0.17
+  counts sigthree 7.36 +- 0.16 , 1.01 +- 0.08 , 0.12 +- 0.03
+  counts sigfour 20.36 +- 0.71 , 6.33 +- 0.28 , 0.36 +- 0.07
+
+region ASR11
+  presel
+  select MHT >= 600
+  select HT >= 600
+  select size(jets) >= 6
+  select size(bjets) >= 1
+  counts sigone 32.65 +- 0.23 , 74.87 +- 0.57 , 21.88 +- 0.27 , 34.51 +- 0.27
+  counts sigtwo 27.20 +- 0.73 , 76.83 +- 1.33 , 40.23 +- 0.76 , 16.04 +- 0.51
+  counts sigthree 88.82 +- 0.80 , 29.97 +- 0.54 , 10.60 +- 0.24
+  counts sigfour 30.97 +- 1.16 , 51.75 +- 1.01 , 14.65 +- 0.62
+
+region ASR12
+  presel
+  select MHT >= 850
+  select HT >= 850
+  select size(jets) >= 10
+  select size(bjets) >= 3
+  counts sigone 3.69 +- 0.09 , 0.86 +- 0.06 , 0.03 +- 0.01 , 0.27 +- 0.02
+  counts sigtwo 1.26 +- 0.17 , 1.07 +- 0.16 , 0.07 +- 0.02 , 0.10 +- 0.03
+  counts sigthree 0.19 +- 0.03 , 0.04 +- 0.02 , 0.02 +- 0.01
+  counts sigfour 0.09 +- 0.03 , 0.07 +- 0.03 , 0.00 +- 0.00
+

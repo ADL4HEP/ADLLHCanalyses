@@ -63,7 +63,8 @@ object jetsmht
 
 object bjets
   take jets
-  select applyHM( btagdeepCSVmedium( Pt(Jet) ) == 1)
+  select abs(flavor(jets)) == 5  
+  select applyHM( btagdeepCSVmedium( Pt(jets) ) == 1)
   #select DeepCSV > 0.6324, 0.4941 # 2016, 2017+18. Eff = 55-70 for pT=20-400
 
 object vetomuons
@@ -752,7 +753,7 @@ region ASR11
   select MHT >= 600
   select HT >= 600
   select size(jets) >= 6
-  select size(bjets) == 1
+  select size(bjets) >= 1
   counts bgests 141 + 15 - 10 +- 2 , 160 +- 6 +- 16 , 3.2 +- 0.6 +- 1.1
   counts results 304 + 16 - 11 +- 16 , 282
 
