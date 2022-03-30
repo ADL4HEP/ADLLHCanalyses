@@ -60,6 +60,7 @@ object bjets
   take Jet
   select pT(Jet) > 20
   select abs(Eta(Jet)) < 2.4
+  select abs(flavor(Jet)) == 5
   # b-tagging: DeepCSV > 0.6324, 0.4941 # 2016, 2017+18. Eff = 55-70 for pT=20-400
   select applyHM( btagdeepCSVmedium( Pt(Jet) ) == 1)
 
@@ -193,13 +194,13 @@ region SSR7jtight
 
 region SSR10jloose
   presel
-  select size(jets) >= 2
+  select size(jets) >= 10
   select HT > 1200
   select MT2 > 400
 
 region SSR10jtight
   presel
-  select size(jets) >= 2
+  select size(jets) >= 10
   select HT > 1500
   select MT2 > 600
 
@@ -284,10 +285,10 @@ region SSR10jfourbtight
   presel
   select size(jets) >= 10
   select size(bjets) >= 4
-  select HT > 1200
+  select HT > 1500
   select MT2 > 400
 
-region SSR2btight
+region monophi
   presel
   select size(jets) [] 1 3
   select size(bjets) == 0
@@ -691,10 +692,3 @@ region SRBHT1500
   bin size(jets) >= 10 and size(bjets) == 3 and MT2 >= 400
   # nj >= 10, nb >= 4
   bin size(jets) >= 10 and size(bjets) >= 4 and MT2 >= 400
-
-
-
-
-
-
-
