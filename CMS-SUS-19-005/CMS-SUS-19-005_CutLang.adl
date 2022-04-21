@@ -125,12 +125,17 @@ object hemispheres
 
 object MHTLVobj
   take jetsfordphi
-  select sum(jetsfordphi) == 1
+  select sum(-jetsfordphi) > 0
+
+object MHTLVplusobj
+  take jetsfordphi
+  select sum(jetsfordphi) > 0
 
 # EVENT VARIABLES
 
 define HT = fHT(jets)
 define MHTLV = MHTLVobj[0]
+define MHTLVplus = MHTLVplusobj[0]
 define MHT = pT( MHTLV )
 define MT2 = fMT2(hemispheres[0], hemispheres[1], METLV[0])
 
@@ -138,19 +143,20 @@ define MT2 = fMT2(hemispheres[0], hemispheres[1], METLV[0])
 
 # Inclusive search
 region presel
-  weight trigger 0.97
+  weight trigger 0.97 # trigger keyword?
   select size(jets) > 0
   select size(jetsfordphi) > 0
   select size(hemispheres) == 2
   select size(MHTLVobj) >= 0
+  select size(MHTLVplusobj) >= 0
   select HT > 250
   select HT < 1200 or size(jets) == 1 ? MET > 250 : MET > 30
   select HT > 1500 and size(jets) >= 2 ? MT2 > 400 : MT2 > 200
   select size(jets) == 1 ? pT(jets[0]) > 250 and MET > 250 : ALL
-  select size(jets) > 2 ? MT2 > 200 : ALL
-  select size(jetsfordphi) >= 4 ? min(dphi(METLV[0], jetsfordphi[0:3])) > 0.3 : min(dphi(METLV[0], jetsfordphi)) > 0.3
-  select pT(METLV[0] MHTLV) / MET < 0.5
-  select size(vetoelectrons) >= 0 and size(vetomuons) >= 0
+  select size(jets) >= 2 ? MT2 > 200 : ALL
+  select size(jetsfordphi) >= 4 ? min(dphi(METLV[0], jetsfordphi[0:3])) > 0.3 : min(dphi(METLV[0], jetsfordphi)) > 0.3 # very ambiguous in the paper.  Only for njets >= 4?
+  select pT(METLV[0] MHTLVplus) / MET < 0.5
+  #select pT(METLV[0] - MHTLV) / MET < 0.5
   select size(vetoleptons) == 0
   #select size(vetoleptontracks) == 0
 
@@ -316,7 +322,7 @@ region SRBnj1
   bin size(bjets) == 1 and pT(jets[0]) [] 575 700
   bin size(bjets) == 1 and pT(jets[0]) >= 700
 
-# HT [] 250 450, Table 12
+# nj >= 2, HT [] 250 450, Table 13
 region SRB250HT450
   presel
   select size(jets) >= 2
@@ -350,20 +356,17 @@ region SRB250HT450
   bin size(jets) [] 4 6 and size(bjets) == 2 and MT2 >= 400
   #
   bin size(jets) >= 7 and size(bjets) == 0 and MT2 [] 200 300
-  bin size(jets) >= 7 and size(bjets) == 0 and MT2 [] 300 400
-  bin size(jets) >= 7 and size(bjets) == 0 and MT2 >= 400
+  bin size(jets) >= 7 and size(bjets) == 0 and MT2 [] 300 500
+  bin size(jets) >= 7 and size(bjets) == 0 and MT2 >= 500
   #
   bin size(jets) >= 7 and size(bjets) == 1 and MT2 [] 200 300
-  bin size(jets) >= 7 and size(bjets) == 1 and MT2 [] 300 400
-  bin size(jets) >= 7 and size(bjets) == 1 and MT2 >= 400
+  bin size(jets) >= 7 and size(bjets) == 1 and MT2 >= 300
   #
   bin size(jets) >= 7 and size(bjets) == 2 and MT2 [] 200 300
-  bin size(jets) >= 7 and size(bjets) == 2 and MT2 [] 300 400
-  bin size(jets) >= 7 and size(bjets) == 2 and MT2 >= 400
+  bin size(jets) >= 7 and size(bjets) == 2 and MT2 >= 300
   #
   bin size(jets) >= 7 and size(bjets) >= 3 and MT2 [] 200 300
-  bin size(jets) >= 7 and size(bjets) >= 3 and MT2 [] 300 400
-  bin size(jets) >= 7 and size(bjets) >= 3 and MT2 >= 400
+  bin size(jets) >= 7 and size(bjets) >= 3 and MT2 >= 300
 
 
 # HT [] 450 575, Tables 14, 15
@@ -451,7 +454,7 @@ region SRB575HT1200
   bin size(jets) [] 2 3 and size(bjets) == 2 and MT2 [] 400 600
   bin size(jets) [] 2 3 and size(bjets) == 2 and MT2 [] 600 800
   bin size(jets) [] 2 3 and size(bjets) == 2 and MT2 >= 800
-  # nj [] 2 6, nb = 2
+  # nj [] 2 6, nb = 3
   bin size(jets) [] 2 6 and size(bjets) >= 3 and MT2 [] 200 300
   bin size(jets) [] 2 6 and size(bjets) >= 3 and MT2 [] 300 400
   bin size(jets) [] 2 6 and size(bjets) >= 3 and MT2 [] 400 600
@@ -631,7 +634,7 @@ region SRBHT1500
   bin size(jets) [] 2 3 and size(bjets) == 0 and MT2 [] 1000 1200
   bin size(jets) [] 2 3 and size(bjets) == 0 and MT2 [] 1200 1400
   bin size(jets) [] 2 3 and size(bjets) == 0 and MT2 [] 1400 1800
-  bin size(jets) [] 2 3 and size(bjets) == 0 and MT2 >= 1400
+  bin size(jets) [] 2 3 and size(bjets) == 0 and MT2 >= 1800
   # nj [] 2 3, nb = 1
   bin size(jets) [] 2 3 and size(bjets) == 1 and MT2 [] 400 600
   bin size(jets) [] 2 3 and size(bjets) == 1 and MT2 [] 600 800
