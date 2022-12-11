@@ -111,11 +111,11 @@ define MHT = pT( MHTLV )
 
 # preselection region
 region presel
-#  select ALL
-#  counts sigone 100.0 +- 0.8 , 100.0 +- 0.5 , 100.0 +- 0.0 , 100.0 +- 0.5
-#  counts sigtwo 100.0 +- 0.0 , 100.0 +- 0.1 , 100.0 +- 0.1 , 100.0 +- 0.1 
-#  counts sigthree 100.0 +- 0.2 , 100.0 +- 0.5 , 100.0 +- 0.5
-#  counts sigfour 100.0 +- 0.0 , 100.0 +- 0.1 , 100.0 +- 0.2
+  select ALL
+  counts sigone 100.0 +- 0.8 , 100.0 +- 0.5 , 100.0 +- 0.0 , 100.0 +- 0.5
+  counts sigtwo 100.0 +- 0.0 , 100.0 +- 0.1 , 100.0 +- 0.1 , 100.0 +- 0.1 
+  counts sigthree 100.0 +- 0.2 , 100.0 +- 0.5 , 100.0 +- 0.5
+  counts sigfour 100.0 +- 0.0 , 100.0 +- 0.1 , 100.0 +- 0.2
   select size(jets) >= 2
   counts sigone 100.0 +- 0.8 , 100.0 +- 0.5 , 100.0 +- 0.0 , 100.0 +- 0.5
   counts sigtwo 100.0 +- 0.0 , 99.3 +- 0.1 , 99.6 +- 0.1 , 100.0 +- 0.1 
