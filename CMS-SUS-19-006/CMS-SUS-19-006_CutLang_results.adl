@@ -71,17 +71,39 @@ object vetomuons
   take Muon
   select pT(Muon) > 10
   select abs(Eta(Muon)) < 2.4
-  select abs(d0(Muon)) < 2
-  # relative isolation
+  select miniIso(Muon) < 0.2
 
 object vetoelectrons
   take Electron
   select pT(Electron) > 10
   select abs(eta(Electron)) < 2.4
-  select abs(d0(Electron)) < 2
-  # relative isolation
+  select miniIso(Electron) < 0.2
 
 object vetoleptons : Union(vetoelectrons, vetomuons)
+
+object eleisotracks
+  take Trk
+  select abs(eta(Trk)) < 2.4
+  select abs(pdgID(Trk)) == 11
+  select pt(Trk) > 5
+  select (ptcone(Trk) / pt(Trk)) < 0.2
+  select sqrt( 2*pT(Trk) *MET*(1-cos( Phi(METLV[0]) - Phi(Trk) ))) < 100
+
+object muisotracks
+  take Trk
+  select abs(eta(Trk)) < 2.4
+  select abs(pdgID(Trk)) == 13
+  select pt(Trk) > 5
+  select (ptcone(Trk) / pt(Trk)) < 0.2
+  select sqrt( 2*pT(Trk) *MET*(1-cos( Phi(METLV[0]) - Phi(Trk) ))) < 100
+
+object hadisotracks
+  take Trk
+  select abs(eta(Trk)) < 2.4
+  reject abs(pdgID(Trk)) == 11 or abs(pdgID(Trk)) == 13
+  select pt(Trk) > 10
+  select ptcone(Trk) / pt(Trk) < 0.1
+  select sqrt( 2*pT(Trk) *MET*(1-cos( Phi(METLV[0]) - Phi(Trk) ))) < 100
 
 object vetophotons
   take Photon
@@ -105,8 +127,10 @@ region presel
   select MHT > 300
   select MHT / HT <= 1
   select size(vetomuons) == 0
+  select size(muisotracks) == 0
   select size(vetoelectrons) == 0
-  #select size(isotracks) == 0
+  select size(eleisotracks) == 0  
+  select size(hadisotracks) == 0
   select size(vetophotons) == 0
   select dphi(jets[0], MHTLV) > 0.5
   select dphi(jets[1], MHTLV) > 0.5
