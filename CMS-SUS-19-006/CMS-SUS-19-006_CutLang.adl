@@ -118,8 +118,10 @@ region presel
   select MHT > 300
   select MHT / HT <= 1
   select size(vetomuons) == 0
+  select size(muisotracks) == 0
   select size(vetoelectrons) == 0
-  #select size(isotracks) == 0
+  select size(eleisotracks) == 0  
+  select size(hadisotracks) == 0
   select size(vetophotons) == 0
   select dphi(jets[0], MHTLV) > 0.5
   select dphi(jets[1], MHTLV) > 0.5
