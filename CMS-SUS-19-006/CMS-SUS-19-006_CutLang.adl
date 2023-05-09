@@ -327,85 +327,84 @@ region searchbins
 # Aggregate search regions as shown in Table 9
 region ASR1
   presel
-  select MHT >= 600
-  select HT >= 600
+  select MHT > 600
+  select HT > 600
   select size(jets) >= 2
   select size(bjets) == 0
 
 region ASR2
   presel
-  select MHT >= 850
-  select HT >= 1700
+  select MHT > 850
+  select HT > 1700
   select size(jets) >= 4
   select size(bjets) == 0
 
 region ASR3
   presel
-  select MHT >= 600
-  select HT >= 600
+  select MHT > 600
+  select HT > 600
   select size(jets) >= 6
   select size(bjets) == 0
 
 region ASR4
   presel
-  select MHT >= 600
-  select HT >= 600
+  select MHT > 600
+  select HT > 600
   select size(jets) >= 8
   select size(bjets) [] 0 1
 
 region ASR5
   presel
-  select MHT >= 850
-  select HT >= 1700
+  select MHT > 850
+  select HT > 1700
   select size(jets) >= 10
   select size(bjets) [] 0 1
 
 region ASR6
   presel
-  select MHT >= 300
-  select HT >= 300
+  select MHT > 300
+  select HT > 300
   select size(jets) >= 4
   select size(bjets) >= 2
 
 region ASR7
   presel
-  select MHT >= 600
-  select HT >= 600
+  select MHT > 600
+  select HT > 600
   select size(jets) >= 2
   select size(bjets) >= 2
 
 region ASR8
   presel
-  select MHT >= 350
-  select HT >= 350
+  select MHT > 350
+  select HT > 350
   select size(jets) >= 6
   select size(bjets) >= 2
 
 region ASR9
   presel
-  select MHT >= 600
-  select HT >= 600
+  select MHT > 600
+  select HT > 600
   select size(jets) >= 4
   select size(bjets) >= 2
 
 region ASR10
   presel
-  select MHT >= 300
-  select HT >= 300
+  select MHT > 300
+  select HT > 300
   select size(jets) >= 8
   select size(bjets) >= 3
 
 region ASR11
   presel
-  select MHT >= 600
-  select HT >= 600
+  select MHT > 600
+  select HT > 600
   select size(jets) >= 6
   select size(bjets) >= 1
 
 region ASR12
   presel
-  select MHT >= 850
-  select HT >= 850
+  select MHT > 850
+  select HT > 850
   select size(jets) >= 10
   select size(bjets) >= 3
-
