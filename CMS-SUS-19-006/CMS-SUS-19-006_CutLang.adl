@@ -42,8 +42,6 @@ table btagdeepCSVmedium
 
 # OBJECT SELECTION
 
-# OBJECT SELECTION
-
 object jets 
   take Jet
   select pT(Jet) > 30  
