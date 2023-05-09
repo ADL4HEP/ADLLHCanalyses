@@ -76,7 +76,7 @@ object jetsmht
 
 object bjets
   take jets
-  select abs(flavor(jets)) == 5
+  select abs(flavor(jets)) == 5  
   select applyHM( btagdeepCSVmedium( Pt(jets) ) == 1)
   #select DeepCSV > 0.6324, 0.4941 # 2016, 2017+18. Eff = 55-70 for pT=20-400
 
@@ -84,17 +84,39 @@ object vetomuons
   take Muon
   select pT(Muon) > 10
   select abs(Eta(Muon)) < 2.4
-  select abs(d0(Muon)) < 2
-  # relative isolation
+  select miniIso(Muon) < 0.2
 
 object vetoelectrons
   take Electron
   select pT(Electron) > 10
-  select abs(eta(Electron)) < 2.4
-  select abs(d0(Electron)) < 2
-  # relative isolation
+  select abs(eta(Electron)) < 2.5
+  select miniIso(Electron) < 0.1
 
 object vetoleptons : Union(vetoelectrons, vetomuons)
+
+object eleisotracks
+  take Trk
+  select abs(eta(Trk)) < 2.4
+  select abs(pdgID(Trk)) == 11
+  select pt(Trk) > 5
+  select (ptcone(Trk) / pt(Trk)) < 0.2
+  select sqrt( 2*pT(Trk) *MET*(1-cos( Phi(METLV[0]) - Phi(Trk) ))) < 100
+
+object muisotracks
+  take Trk
+  select abs(eta(Trk)) < 2.4
+  select abs(pdgID(Trk)) == 13
+  select pt(Trk) > 5
+  select (ptcone(Trk) / pt(Trk)) < 0.2
+  select sqrt( 2*pT(Trk) *MET*(1-cos( Phi(METLV[0]) - Phi(Trk) ))) < 100
+
+object hadisotracks
+  take Trk
+  select abs(eta(Trk)) < 2.4
+  reject abs(pdgID(Trk)) == 11 or abs(pdgID(Trk)) == 13
+  select pt(Trk) > 10
+  select ptcone(Trk) / pt(Trk) < 0.1
+  select sqrt( 2*pT(Trk) *MET*(1-cos( Phi(METLV[0]) - Phi(Trk) ))) < 100
 
 object vetophotons
   take Photon
@@ -104,7 +126,7 @@ object vetophotons
 object MHTLVobj
   take jetsmht
   select sum(-jetsmht) > 0
-
+  
 define HT = fHT(jets)
 define MHTLV = MHTLVobj[0]
 define MHT = pT( MHTLV )
